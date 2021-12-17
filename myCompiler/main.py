@@ -1,5 +1,5 @@
 import sys
-from .antlr4 import *
+from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
 from programLexer import programLexer
 from programParser import programParser
