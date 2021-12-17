@@ -1,6 +1,6 @@
 [jobs.lab1]
 
-image = { source = "dockerfile", path = ".", tag = "pascal-lex-example" }
+image = { source = "dockerfile", path = "." }
 
 run = [
   "python main.py $input",
