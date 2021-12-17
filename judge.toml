@@ -3,5 +3,5 @@
 image = { source = "dockerfile", path = "." }
 
 run = [
-  "python myCompiler/main.py $input",
+  "python myCompiler/main.py $input >> $ir",
 ]
