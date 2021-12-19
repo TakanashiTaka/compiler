@@ -148,8 +148,10 @@ class myVisitor(programVisitor):
             elif(ctx.getChild(0).getText() == '-'):
                 reg,res=self.visitUnaryexp(ctx.getChild(1))
                 self.maxregnum+=1
-                print('%'+str(self.maxregnum) + '= sub i32 0 ,'+str(res))
-                
+                if(reg == 0):
+                    print('%'+str(self.maxregnum) + '= sub i32 0 ,'+str(res))
+                else:
+                    print('%'+str(self.maxregnum) + '= sub i32 0 ,%'+str(reg))            
                 return self.maxregnum, res
 
     def visitBraceexp(self, ctx: programParser.BraceexpContext):
