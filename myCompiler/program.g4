@@ -34,7 +34,7 @@ lval: ident (Lsb exp Rsb)*;
 primaryexp:
 	Lb exp Rb	# braceexp
 	| lval		# lvalexp
-	| Number	# numberexp;
+	| number	# numberexp;
 unaryexp:
 	primaryexp
 	| ident Lb (funcrparams)? Rb
@@ -48,7 +48,9 @@ eqexp: relexp | eqexp (Equal | NEqual) relexp;
 landexp: eqexp | landexp And eqexp;
 lOrexp: landexp | lOrexp Or landexp;
 constexp: addexp;
+number:Number;
 ident: Ident;
+
 
 LoE: '<=';
 GoE: '>=';
@@ -84,6 +86,8 @@ CONTINUE: 'continue';
 RETURN: 'return';
 CONST: 'const';
 
+Ident:[_a-zA-Z][a-zA-Z_0-9] *;
+
 Number: Decimal_const | Octal_const | Hexadecimal_const;
 Decimal_const: Nonzero_digit Digit*;
 Octal_const: '0' Octal_digit*;
@@ -94,9 +98,7 @@ Nonzero_digit: [1-9];
 Octal_digit: [0-7];
 Hexadecimal_digit: [0-9] | [a-f] | [A-F];
 
-Ident: Nondigit (Nondigit | Digit)*;
-Nondigit: [a-z]| [A-Z_];
-Digit: [0-9];
+Digit:[0-9];
 
 Ignore_single: '//' .*? '\r'? '\n' -> skip;
 Ignore_multi: '/*' .*? '*/' -> skip;

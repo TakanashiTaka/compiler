@@ -209,6 +209,11 @@ class programVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by programParser#number.
+    def visitNumber(self, ctx:programParser.NumberContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by programParser#ident.
     def visitIdent(self, ctx:programParser.IdentContext):
         return self.visitChildren(ctx)

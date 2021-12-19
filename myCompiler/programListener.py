@@ -368,6 +368,15 @@ class programListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by programParser#number.
+    def enterNumber(self, ctx:programParser.NumberContext):
+        pass
+
+    # Exit a parse tree produced by programParser#number.
+    def exitNumber(self, ctx:programParser.NumberContext):
+        pass
+
+
     # Enter a parse tree produced by programParser#ident.
     def enterIdent(self, ctx:programParser.IdentContext):
         pass

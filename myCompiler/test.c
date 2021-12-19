@@ -1,4 +1,6 @@
 int main(){
-    return 0xff;
-    //return 4;
+    return 2*(2+(4*2+(5+2)));
+    // int A;
+    // int bbb;
+    // int _a;
 }
