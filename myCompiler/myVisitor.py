@@ -153,7 +153,7 @@ class myVisitor(programVisitor):
     def visitLval(self, ctx: programParser.LvalContext):
         n=ctx.getChildCount()
         if(n==1):
-            return '%'+str(self.identdic.get(self.visitIdent(ctx.getChild(0))))
+            return self.identdic.get(self.visitIdent(ctx.getChild(0)))
         return '0'
 
     def visitNumberexp(self, ctx: programParser.NumberexpContext):
@@ -169,23 +169,36 @@ class myVisitor(programVisitor):
         # print(str(a))
         return str(a)
 
+    # def visitVardecl(self, ctx: programParser.VardeclContext):
+    
+    def visitConstdef(self, ctx: programParser.ConstdefContext):
+        n=ctx.getChildCount()
+        key=self.visitIdent(ctx.getChild(0))
+        self.identdic[key]=self.visitConstinitval(ctx.getChild(n-1))
+
+    def visitConstinitval(self, ctx: programParser.ConstinitvalContext):
+        return self.visitConstexp(ctx.getChild(0))
+
+    def visitConstexp(self, ctx: programParser.ConstexpContext):
+        return self.visitAddexp(ctx.getChild(0))
+
     def visitAssigndef(self, ctx: programParser.AssigndefContext):
         n=ctx.getChildCount()
         self.maxregnum+=1
         key=self.visitIdent(ctx.getChild(0))
-        self.identdic[key]=self.maxregnum
+        self.identdic[key]='%'+str(self.maxregnum)
         print('%'+str(self.maxregnum)+'= alloca i32')
         res=self.visitInitval(ctx.getChild(n-1))
-        print('store i32 '+res+', i32* %'+str(self.identdic.get(key)))
+        print('store i32 '+res+', i32* '+self.identdic.get(key))
         self.maxregnum+=1
-        print('%'+str(self.maxregnum)+" = load i32, i32* %"+str(self.identdic.get(key)))
-        self.identdic[key]=self.maxregnum
+        print('%'+str(self.maxregnum)+" = load i32, i32* "+self.identdic.get(key))
+        self.identdic[key]='%'+str(self.maxregnum)
     
     def visitNoassigndef(self, ctx: programParser.NoassigndefContext):
         n=ctx.getChildCount()
         self.maxregnum+=1
         key=self.visitIdent(ctx.getChild(0))
-        self.identdic[key]=self.maxregnum
+        self.identdic[key]='%'+str(self.maxregnum)
         print('%'+str(self.maxregnum)+'= alloca i32')
         
 
@@ -198,5 +211,4 @@ class myVisitor(programVisitor):
         print('store i32 '+res2+', i32* '+res1)
         self.maxregnum+=1
         print('%'+str(self.maxregnum)+" = load i32, i32* "+res1)
-        self.identdic[ctx.getChild(0).getText()]=self.maxregnum
-
+        self.identdic[ctx.getChild(0).getText()]='%'+str(self.maxregnum)
