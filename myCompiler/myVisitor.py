@@ -108,7 +108,7 @@ class myVisitor(programVisitor):
             else:
                 # print("rule index is "+str(ctx.getChild(0).getChild(0).getRuleIndex()))
                 if(ctx.getChild(0).getChild(0).getRuleIndex() == 18):
-                    return self.visitLval(ctx.getChild(0))
+                    return self.visitLvalexp(ctx.getChild(0))
                 else:
                     return self.visitNumberexp(ctx.getChild(0))
         elif(n == 2):
@@ -150,10 +150,17 @@ class myVisitor(programVisitor):
     def visitBraceexp(self, ctx: programParser.BraceexpContext):
         return self.visitExp(ctx.getChild(1))
 
+    def visitLvalexp(self, ctx: programParser.LvalexpContext):
+        res=self.visitLval(ctx.getChild(0))
+        self.maxregnum+=1
+        print('%'+str(self.maxregnum)+" = load i32, i32* "+res)
+        return '%'+str(self.maxregnum)
+        
     def visitLval(self, ctx: programParser.LvalContext):
         n=ctx.getChildCount()
         if(n==1):
-            return self.identdic.get(self.visitIdent(ctx.getChild(0)))
+           return self.identdic.get(self.visitIdent(ctx.getChild(0)))  
+
         return '0'
 
     def visitNumberexp(self, ctx: programParser.NumberexpContext):
@@ -190,9 +197,9 @@ class myVisitor(programVisitor):
         print('%'+str(self.maxregnum)+'= alloca i32')
         res=self.visitInitval(ctx.getChild(n-1))
         print('store i32 '+res+', i32* '+self.identdic.get(key))
-        self.maxregnum+=1
-        print('%'+str(self.maxregnum)+" = load i32, i32* "+self.identdic.get(key))
-        self.identdic[key]='%'+str(self.maxregnum)
+        # self.maxregnum+=1
+        # print('%'+str(self.maxregnum)+" = load i32, i32* "+self.identdic.get(key))
+        # self.identdic[key]='%'+str(self.maxregnum)
     
     def visitNoassigndef(self, ctx: programParser.NoassigndefContext):
         n=ctx.getChildCount()
@@ -209,6 +216,6 @@ class myVisitor(programVisitor):
         res1=self.visitLval(ctx.getChild(0))
         res2=self.visitExp(ctx.getChild(2))
         print('store i32 '+res2+', i32* '+res1)
-        self.maxregnum+=1
-        print('%'+str(self.maxregnum)+" = load i32, i32* "+res1)
-        self.identdic[ctx.getChild(0).getText()]='%'+str(self.maxregnum)
+        # self.maxregnum+=1
+        # print('%'+str(self.maxregnum)+" = load i32, i32* "+res1)
+        # self.identdic[ctx.getChild(0).getText()]='%'+str(self.maxregnum)
