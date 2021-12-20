@@ -1,5 +1,5 @@
 int main(){
-    return - - 1;
+    return -4+5*-6*6;
     // int A;
     // int bbb;
     // int _a;
