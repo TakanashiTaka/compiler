@@ -124,19 +124,25 @@ class myVisitor(programVisitor):
             identstr=self.visitIdent(ctx.getChild(0))
             if(identstr=='getint'):
                 self.maxregnum+=1
-                print('%'+str(self.maxregnum) + ' call i32 @getint()')
-                if(ctx.getChildCount()!=4):
+                print('%'+str(self.maxregnum) + '= call i32 @getint()')
+                if(ctx.getChildCount()!=3):
                     exit(-1)
             elif(identstr=='getch'):
                 self.maxregnum+=1
-                print('%'+str(self.maxregnum) + ' call i32 @getch()')
-                if(ctx.getChildCount()!=4):
+                print('%'+str(self.maxregnum) + '= call i32 @getch()')
+                if(ctx.getChildCount()!=3):
                     exit(-1)
             elif(identstr=='putint'):
-                retreg,retres=self.visitFuncrparams(ctx.getChild(2))
-                print('call void @putint(i32 %')
+                res=self.visitFuncrparams(ctx.getChild(2))
+                print('call void @putint(i32 '+res+')')
+                if(ctx.getChild(2).getChildCount()!=1):
+                    exit(-1)
             elif(identstr=='putch'):
-                print()
+                res=self.visitFuncrparams(ctx.getChild(2))
+                print('call void @putch(i32 '+res+')')
+                if(ctx.getChild(2).getChildCount()!=1):
+                    exit(-1)
+            return '%'+str(self.maxregnum)
 
     def visitFuncrparams(self, ctx: programParser.FuncrparamsContext):
         return self.visitExp(ctx.getChild(0))
@@ -147,7 +153,7 @@ class myVisitor(programVisitor):
     def visitLval(self, ctx: programParser.LvalContext):
         n=ctx.getChildCount()
         if(n==1):
-            return '%'+self.identdic.get(self.visitIdent(ctx.getChild(0)))
+            return '%'+str(self.identdic.get(self.visitIdent(ctx.getChild(0))))
         return '0'
 
     def visitNumberexp(self, ctx: programParser.NumberexpContext):
@@ -169,11 +175,8 @@ class myVisitor(programVisitor):
         key=self.visitIdent(ctx.getChild(0))
         self.identdic[key]=self.maxregnum
         print('%'+str(self.maxregnum)+'= alloca i32')
-        retreg,retres=self.visitInitval(ctx.getChild(n-1))
-        if(retreg==0):
-            print('store i32 '+str(retres)+', i32* %'+str(self.identdic.get(key)))
-        else:
-            print('store i32 %'+str(retreg)+', i32* %'+str(self.identdic.get(key)))
+        res=self.visitInitval(ctx.getChild(n-1))
+        print('store i32 '+res+', i32* %'+str(self.identdic.get(key)))
         self.maxregnum+=1
         print('%'+str(self.maxregnum)+" = load i32, i32* %"+str(self.identdic.get(key)))
         self.identdic[key]=self.maxregnum
@@ -190,13 +193,10 @@ class myVisitor(programVisitor):
         return self.visitExp(ctx.getChild(0))
 
     def visitAssignstmt(self, ctx: programParser.AssignstmtContext):
-        retreg1,retres1=self.visitLval(ctx.getChild(0))
-        retreg2,retres2=self.visitExp(ctx.getChild(2))
-        if(retreg2==0):
-            print('store i32 '+str(retres2)+', i32* %'+str(retreg1))
-        else:
-            print('store i32 %'+str(retres2)+', i32* %'+str(retreg1))
+        res1=self.visitLval(ctx.getChild(0))
+        res2=self.visitExp(ctx.getChild(2))
+        print('store i32 '+res2+', i32* '+res1)
         self.maxregnum+=1
-        print('%'+str(self.maxregnum)+" = load i32, i32* %"+str(retreg1))
+        print('%'+str(self.maxregnum)+" = load i32, i32* "+res1)
         self.identdic[ctx.getChild(0).getText()]=self.maxregnum
 

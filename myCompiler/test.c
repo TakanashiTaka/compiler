@@ -1,5 +1,6 @@
 int main(){
-    return -4+5*-6*6;
+    int a=getint();
+    return a;
     // int A;
     // int bbb;
     // int _a;
