@@ -205,7 +205,10 @@ class myVisitor(programVisitor):
     def visitConstdef(self, ctx: programParser.ConstdefContext):
         n = ctx.getChildCount()
         key = self.visitIdent(ctx.getChild(0))
-        self.constdic[key] = self.visitConstinitval(ctx.getChild(n-1))
+        if(self.constdic.get(key)==None and self.identdic.get(key)==None):
+            self.constdic[key] = self.visitConstinitval(ctx.getChild(n-1))
+        else:
+            exit(-1)
 
     def visitConstinitval(self, ctx: programParser.ConstinitvalContext):
         return self.visitConstexp(ctx.getChild(0))
@@ -217,17 +220,23 @@ class myVisitor(programVisitor):
         n = ctx.getChildCount()
         self.maxregnum += 1
         key = self.visitIdent(ctx.getChild(0))
-        self.identdic[key] = '%'+str(self.maxregnum)
-        self.visitres+='%'+str(self.maxregnum)+'= alloca i32\n'
-        res = self.visitInitval(ctx.getChild(n-1))
-        self.visitres+='store i32 '+res+', i32* '+self.identdic.get(key)+'\n'
+        if(self.constdic.get(key)==None and self.identdic.get(key)==None):
+            self.identdic[key] = '%'+str(self.maxregnum)
+            self.visitres+='%'+str(self.maxregnum)+'= alloca i32\n'
+            res = self.visitInitval(ctx.getChild(n-1))
+            self.visitres+='store i32 '+res+', i32* '+self.identdic.get(key)+'\n'
+        else:
+            exit(-1)
 
     def visitNoassigndef(self, ctx: programParser.NoassigndefContext):
         n = ctx.getChildCount()
         self.maxregnum += 1
         key = self.visitIdent(ctx.getChild(0))
-        self.identdic[key] = '%'+str(self.maxregnum)
-        self.visitres+='%'+str(self.maxregnum)+'= alloca i32\n'
+        if(self.constdic.get(key)==None and self.identdic.get(key)==None):
+            self.identdic[key] = '%'+str(self.maxregnum)
+            self.visitres+='%'+str(self.maxregnum)+'= alloca i32\n'
+        else:
+            exit(-1)
 
     def visitInitval(self, ctx: programParser.InitvalContext):
         return self.visitExp(ctx.getChild(0))
