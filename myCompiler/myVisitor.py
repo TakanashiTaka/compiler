@@ -14,6 +14,7 @@ class myVisitor(programVisitor):
         self.identdic = {}
         self.constdic = {}
         self.visitres=''
+        self.funcdic={}
     
     def visit(self, tree):
         super().visit(tree)
@@ -129,22 +130,34 @@ class myVisitor(programVisitor):
             identstr = self.visitIdent(ctx.getChild(0))
             if(identstr == 'getint'):
                 self.maxregnum += 1
-                self.visitres='declare i32 @getint()\n'+self.visitres+'%'+str(self.maxregnum) + '= call i32 @getint()\n'
+                if(self.funcdic.get('getint')==None):
+                    self.visitres='declare i32 @getint()\n'+self.visitres
+                    self.funcdic['getint']=True
+                self.visitres+='%'+str(self.maxregnum) + '= call i32 @getint()\n'
                 if(ctx.getChildCount() != 3):
                     exit(-1)
             elif(identstr == 'getch'):
                 self.maxregnum += 1
-                self.visitres='declare i32 @getch()\n'+self.visitres+'%'+str(self.maxregnum) + '= call i32 @getch()\n'
+                if(self.funcdic.get('getch')==None):
+                    self.visitres='declare i32 @getch()\n'+self.visitres
+                    self.funcdic['getch']=True
+                self.visitres+='%'+str(self.maxregnum) + '= call i32 @getch()\n'
                 if(ctx.getChildCount() != 3):
                     exit(-1)
             elif(identstr == 'putint'):
                 res = self.visitFuncrparams(ctx.getChild(2))
-                self.visitres='declare void @putint(i32)\n'+self.visitres+'call void @putint(i32 '+res+')\n'
+                if(self.funcdic.get('putint')==None):
+                    self.visitres='declare void @putint(i32)\n'+self.visitres
+                    self.funcdic['putint']=True
+                self.visitres+='call void @putint(i32 '+res+')\n'
                 if(ctx.getChild(2).getChildCount() != 1):
                     exit(-1)
             elif(identstr == 'putch'):
                 res = self.visitFuncrparams(ctx.getChild(2))
-                self.visitres='declare void @putch(i32)\n'+self.visitres+'call void @putch(i32 '+res+')\n'
+                if(self.funcdic.get('putch')==None):
+                    self.visitres='declare void @putch(i32)\n'+self.visitres
+                    self.funcdic['putch']=True
+                self.visitres+='call void @putch(i32 '+res+')\n'
                 if(ctx.getChild(2).getChildCount() != 1):
                     exit(-1)
             return '%'+str(self.maxregnum)
