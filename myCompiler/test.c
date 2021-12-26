@@ -1,5 +1,5 @@
 int main() {
-    if(1+1>2){
+    if(1+2>4||2){
         return 0;
     }
     else{

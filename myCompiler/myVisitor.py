@@ -281,7 +281,7 @@ class myVisitor(programVisitor):
         self.maxregnum+=1
         self.nowblock=str(self.maxregnum)
         self.nowif=self.nowblock
-        # self.visitres+='br label %'+self.nowblock+'\n'
+        self.visitres+='br label %'+self.nowblock+'\n'
         ifblock=self.nowblock
         self.maxregnum+=3
         self.labeldic[ifblock]=['%'+str(self.maxregnum-2),'%'+str(self.maxregnum-1),'%'+str(self.maxregnum)]
@@ -322,16 +322,20 @@ class myVisitor(programVisitor):
             # self.visitres+=self.nowblock+':\n'
             # self.visitres += 'br i1 '+res2+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             self.nowblock=lastblock
+            
             res1=self.visitLOrexp(ctx.getChild(0))
             return '%'+str(self.maxregnum-1)
 
     def visitLandexp(self, ctx: programParser.LandexpContext):
         n=ctx.getChildCount()
         if(n==1):
-            res1=self.visitEqexp(ctx.getChild(0))
-            self.visitres+='br label %'+self.nowblock+'\n'
+            print(self.labeldic)
+            
             self.visitres+=self.nowblock+':\n'
+            res1=self.visitEqexp(ctx.getChild(0))
+            # self.visitres+='br label %'+self.nowblock+'\n'
             self.maxregnum+=1
+            
             self.visitres+='%'+str(self.maxregnum)+'= zext i32 '+res1+' to i1\n'
             self.visitres += 'br i1 %'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             return '%'+str(self.maxregnum)
@@ -342,13 +346,16 @@ class myVisitor(programVisitor):
             self.labeldic[self.nowblock]=self.labeldic.get(lastblock)
             self.labeldic[lastblock]=['%'+self.nowblock,self.labeldic.get(self.nowblock)[1],self.labeldic.get(self.nowblock)[2]]
             
-            res2=self.visitEqexp(ctx.getChild(2))
             self.visitres+=self.nowblock+':\n' 
+            res2=self.visitEqexp(ctx.getChild(2))
+            
+            # self.visitres+='br label %'+self.nowblock+'\n'
             self.maxregnum+=1
             self.visitres+='%'+str(self.maxregnum)+'= zext i32 '+res2+' to i1\n'
             self.visitres += 'br i1 %'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             
             self.nowblock=lastblock
+            
             res1=self.visitLandexp(ctx.getChild(0))
             return '%'+str(self.maxregnum-1)
 
