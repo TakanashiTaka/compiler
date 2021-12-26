@@ -329,7 +329,7 @@ class myVisitor(programVisitor):
     def visitLandexp(self, ctx: programParser.LandexpContext):
         n=ctx.getChildCount()
         if(n==1):
-            print(self.labeldic)
+            # print(self.labeldic)
             
             self.visitres+=self.nowblock+':\n'
             res1=self.visitEqexp(ctx.getChild(0))
