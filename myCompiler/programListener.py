@@ -152,6 +152,15 @@ class programListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by programParser#stmt.
+    def enterStmt(self, ctx:programParser.StmtContext):
+        pass
+
+    # Exit a parse tree produced by programParser#stmt.
+    def exitStmt(self, ctx:programParser.StmtContext):
+        pass
+
+
     # Enter a parse tree produced by programParser#assignstmt.
     def enterAssignstmt(self, ctx:programParser.AssignstmtContext):
         pass

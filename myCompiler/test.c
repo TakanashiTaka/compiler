@@ -1,4 +1,9 @@
 int main() {
-    int five = 5;
-    return 0;
+    if(10||2&&3){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+    return 2;
 }

@@ -1,6 +1,10 @@
 grammar program;
 
-compunit: decl EOF | funcdef EOF | compunit decl EOF | compunit funcdef EOF;
+compunit:
+	decl EOF
+	| funcdef EOF
+	| compunit decl EOF
+	| compunit funcdef EOF;
 decl: constdecl | vardecl;
 constdecl: CONST bType constdef ( COMMA constdef)* SEMI;
 bType: INT;
@@ -19,15 +23,27 @@ funcfparams: funcfparam ( COMMA funcfparam)*;
 funcfparam: bType ident (Lsb Rsb ( Lsb exp Rsb)*)?;
 block: Lcb ( blockitem)* Rcb;
 blockitem: decl | stmt;
+// stmt: lval ASSIGN exp SEMI # assignstmt | (exp)? SEMI # normalstmt | block # blockstmt | IF Lb
+// cond Rb stmt ( ELSE stmt)? # ifstmt | WHILE Lb cond Rb stmt # whilestmt | BREAK SEMI # breakstmt
+// | CONTINUE SEMI # continuestmt | RETURN (exp)? SEMI # returnstmt;
+
 stmt:
-	lval ASSIGN exp SEMI				# assignstmt
-	| (exp)? SEMI						# normalstmt
-	| block								# blockstmt
-	| IF Lb cond Rb stmt ( ELSE stmt)?	# ifstmt
-	| WHILE Lb cond Rb stmt				# whilestmt
-	| BREAK SEMI						# breakstmt
-	| CONTINUE SEMI						# continuestmt
-	| RETURN (exp)? SEMI				# returnstmt;
+	assignstmt
+	| normalstmt
+	| blockstmt
+	| ifstmt
+	| whilestmt
+	| breakstmt
+	| continuestmt
+	| returnstmt;
+assignstmt: lval ASSIGN exp SEMI;
+normalstmt: (exp)? SEMI;
+blockstmt: block;
+ifstmt: IF Lb cond Rb stmt ( ELSE stmt)?;
+whilestmt: WHILE Lb cond Rb stmt;
+breakstmt: BREAK SEMI;
+continuestmt: CONTINUE SEMI;
+returnstmt: RETURN (exp)? SEMI;
 exp: addexp;
 cond: lOrexp;
 lval: ident (Lsb exp Rsb)*;
@@ -48,9 +64,8 @@ eqexp: relexp | eqexp (Equal | NEqual) relexp;
 landexp: eqexp | landexp And eqexp;
 lOrexp: landexp | lOrexp Or landexp;
 constexp: addexp;
-number:Number;
+number: Number;
 ident: Ident;
-
 
 LoE: '<=';
 GoE: '>=';
@@ -86,7 +101,7 @@ CONTINUE: 'continue';
 RETURN: 'return';
 CONST: 'const';
 
-Ident:[_a-zA-Z][a-zA-Z_0-9] *;
+Ident: [_a-zA-Z][a-zA-Z_0-9]*;
 
 Number: Decimal_const | Octal_const | Hexadecimal_const;
 Decimal_const: Nonzero_digit Digit*;
@@ -98,7 +113,7 @@ Nonzero_digit: [1-9];
 Octal_digit: [0-7];
 Hexadecimal_digit: [0-9] | [a-f] | [A-F];
 
-Digit:[0-9];
+Digit: [0-9];
 
 Ignore_single: '//' .*? '\r'? '\n' -> skip;
 Ignore_multi: '/*' .*? '*/' -> skip;

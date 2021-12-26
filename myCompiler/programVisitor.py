@@ -89,6 +89,11 @@ class programVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by programParser#stmt.
+    def visitStmt(self, ctx:programParser.StmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by programParser#assignstmt.
     def visitAssignstmt(self, ctx:programParser.AssignstmtContext):
         return self.visitChildren(ctx)
