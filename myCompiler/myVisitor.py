@@ -281,7 +281,7 @@ class myVisitor(programVisitor):
         self.maxregnum+=1
         self.nowblock=str(self.maxregnum)
         self.nowif=self.nowblock
-        self.visitres+='br label %'+self.nowblock+'\n'
+        # self.visitres+='br label %'+self.nowblock+'\n'
         ifblock=self.nowblock
         self.maxregnum+=3
         self.labeldic[ifblock]=['%'+str(self.maxregnum-2),'%'+str(self.maxregnum-1),'%'+str(self.maxregnum)]
@@ -293,10 +293,10 @@ class myVisitor(programVisitor):
         self.visitStmt(ctx.getChild(4))
         self.visitres+='br label %'+ifblockbr[2]+'\n'
         
+        self.visitres+=ifblockbr[1]+':\n'
         if(n>5):
-            self.visitres+=ifblockbr[1]+':\n'
             self.visitStmt(ctx.getChild(6))
-            self.visitres+='br label %'+ifblockbr[2]+'\n'
+        self.visitres+='br label %'+ifblockbr[2]+'\n'
         
         self.visitres+=ifblockbr[2]+':\n'
         # self.nowblock=self.labeldic.get(ifblock)[2][1:]
@@ -329,6 +329,7 @@ class myVisitor(programVisitor):
         n=ctx.getChildCount()
         if(n==1):
             res1=self.visitEqexp(ctx.getChild(0))
+            self.visitres+='br label %'+self.nowblock+'\n'
             self.visitres+=self.nowblock+':\n'
             self.maxregnum+=1
             self.visitres+='%'+str(self.maxregnum)+'= zext i32 '+res1+' to i1\n'

@@ -1,9 +1,9 @@
 int main() {
-    if(10||2&&3){
+    if(1+1>2){
         return 0;
     }
     else{
-        return 1;
+        return 2;
     }
-    return 2;
+    return 1;
 }
