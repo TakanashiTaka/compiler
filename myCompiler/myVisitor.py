@@ -336,7 +336,7 @@ class myVisitor(programVisitor):
             # self.visitres+='br label %g'+self.nowblock+'\n'
             self.maxregnum+=1
             
-            self.visitres+='%g'+str(self.maxregnum)+'= icmp i32 '+res1+', 0\n'
+            self.visitres+='%g'+str(self.maxregnum)+'= icmp ne i32 '+res1+', 0\n'
             self.visitres += 'br i1 %g'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             return '%g'+str(self.maxregnum)
         else:
@@ -351,7 +351,7 @@ class myVisitor(programVisitor):
             
             # self.visitres+='br label %g'+self.nowblock+'\n'
             self.maxregnum+=1
-            self.visitres+='%g'+str(self.maxregnum)+'= icmp i32 '+res2+' , 0\n'
+            self.visitres+='%g'+str(self.maxregnum)+'= icmp ne i32 '+res2+' , 0\n'
             self.visitres += 'br i1 %g'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             
             self.nowblock=lastblock
