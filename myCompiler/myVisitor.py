@@ -260,7 +260,7 @@ class myVisitor(programVisitor):
         n = ctx.getChildCount()
         if(n == 1):
             a=self.scopeidentdic.get(self.nowscope)
-            print('a is '+str(a))
+            # print('a is '+str(a))
             if(a[0].get(self.visitIdent(ctx.getChild(0)))):
                 print(a[0].get(self.visitIdent(ctx.getChild(0))))
                 return a[0].get(self.visitIdent(ctx.getChild(0)))
