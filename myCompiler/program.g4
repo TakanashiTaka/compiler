@@ -1,10 +1,10 @@
 grammar program;
-
+codes:compunit EOF;
 compunit:
-	decl EOF
-	| funcdef EOF
-	| compunit decl EOF
-	| compunit funcdef EOF;
+	 compunit funcdef 
+	| compunit decl 
+	| decl 
+	| funcdef ;
 decl: constdecl | vardecl;
 constdecl: CONST bType constdef ( COMMA constdef)* SEMI;
 bType: INT;

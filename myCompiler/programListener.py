@@ -8,6 +8,15 @@ else:
 # This class defines a complete listener for a parse tree produced by programParser.
 class programListener(ParseTreeListener):
 
+    # Enter a parse tree produced by programParser#codes.
+    def enterCodes(self, ctx:programParser.CodesContext):
+        pass
+
+    # Exit a parse tree produced by programParser#codes.
+    def exitCodes(self, ctx:programParser.CodesContext):
+        pass
+
+
     # Enter a parse tree produced by programParser#compunit.
     def enterCompunit(self, ctx:programParser.CompunitContext):
         pass

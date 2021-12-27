@@ -9,6 +9,11 @@ else:
 
 class programVisitor(ParseTreeVisitor):
 
+    # Visit a parse tree produced by programParser#codes.
+    def visitCodes(self, ctx:programParser.CodesContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by programParser#compunit.
     def visitCompunit(self, ctx:programParser.CompunitContext):
         return self.visitChildren(ctx)

@@ -18,7 +18,7 @@ def main(argv):
     ErrorListener = myErrorListener()
     parser.addErrorListener(ErrorListener)
     # print('new error added')
-    tree = parser.compunit()
+    tree = parser.codes()
     # print('finish')
     v= myVisitor()
     v.visit(tree)

@@ -1,14 +1,6 @@
+const int a=1+2;
+int b=a+1;
 int main() {
-    int a, b;
-    a = 070;
-    b = 0x4;
-    a = a - - 4 + + b;
-    if (+-!!!a) {
-        a = - - -1;
-    }
-    else {
-        a = 0 + + b;
-    }
-    putint(a);
+    int b=2;
     return 0;
 }
