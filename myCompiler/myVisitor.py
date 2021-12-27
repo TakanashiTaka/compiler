@@ -75,7 +75,6 @@ class myVisitor(programVisitor):
                 self.nowscope=self.maxscope
                 copyold=copy.deepcopy(self.scopeidentdic.get(self.scopehisdic.get(self.nowscope)))
                 self.scopeidentdic[self.nowscope]=copyold
-                # print(self.scopeidentdic)
             elif(ctx.getChild(i).getText() == '}'):
                 self.nowscope=self.scopehisdic.get(self.nowscope)
             else:
@@ -145,7 +144,6 @@ class myVisitor(programVisitor):
                     if(ctx.getChild(0).getChild(0).getRuleIndex() == programParser.RULE_lval):
                         return self.visitLvalexp(ctx.getChild(0))
                     else:
-                        # return ''
                         return self.visitNumberexp(ctx.getChild(0))
             elif(n==2):
                 if(ctx.getChild(0).getText() == '+'):
@@ -159,11 +157,9 @@ class myVisitor(programVisitor):
                 if(m == 3):
                     return self.visitBraceexp(ctx.getChild(0))
                 else:
-                    # self.visitres+="rule index is "+str(ctx.getChild(0).getChild(0).getRuleIndex())+'\n'
                     if(ctx.getChild(0).getChild(0).getRuleIndex() == programParser.RULE_lval):
                         return self.visitLvalexp(ctx.getChild(0))
                     else:
-                        # return ''
                         return self.visitNumberexp(ctx.getChild(0))
             elif(n == 2):
                 if(ctx.getChild(0).getText() == '+'):
@@ -229,18 +225,14 @@ class myVisitor(programVisitor):
         return self.visitExp(ctx.getChild(1))
 
     def visitLvalexp(self, ctx: programParser.LvalexpContext):
-        # self.visitLval(ctx.getChild(0))
-        # print(self.scopeidentdic)
         if(self.nowscope==0):
             a=self.scopeidentdic.get(0)
-            # print('a is'+str(a))
             if(a[1].get(self.visitIdent(ctx.getChild(0).getChild(0)))):
                 
                 res=a[1].get(self.visitIdent(ctx.getChild(0).getChild(0)))
                 
                 return res
             else:
-                print('cannot use var to def')
                 exit(-1)
                 
         else:
@@ -253,29 +245,23 @@ class myVisitor(programVisitor):
             elif(a[1].get(self.visitIdent(ctx.getChild(0).getChild(0)))):
                 return a[1].get(self.visitIdent(ctx.getChild(0).getChild(0)))
             else:
-                print('not defined '+self.visitIdent(ctx.getChild(0).getChild(0)))
                 exit(-1)
 
     def visitLval(self, ctx: programParser.LvalContext):
         n = ctx.getChildCount()
         if(n == 1):
             a=self.scopeidentdic.get(self.nowscope)
-            # print('a is '+str(a))
             if(a[0].get(self.visitIdent(ctx.getChild(0)))):
-                print(a[0].get(self.visitIdent(ctx.getChild(0))))
                 return a[0].get(self.visitIdent(ctx.getChild(0)))
             elif(a[1].get(self.visitIdent(ctx.getChild(0)))):
                 return a[1].get(self.visitIdent(ctx.getChild(0)))
             else:
-                print('not defined '+self.visitIdent(ctx.getChild(0)) )
                 exit(-1)
 
         return '0'
 
     def visitNumberexp(self, ctx: programParser.NumberexpContext):
         numstr = ctx.getText()
-        # print(numstr)
-        # return ''
         a = None
         if(numstr[0] == '0'):
             if (len(numstr) > 1 and (numstr[1] == 'x' or numstr[1] == 'X')):
@@ -284,7 +270,6 @@ class myVisitor(programVisitor):
                 a = int(numstr, 8)
         else:
             a = int(numstr, 10)
-        # self.visitres+=str(a))
         if(self.nowscope==0):
             return a
         else:
@@ -296,7 +281,6 @@ class myVisitor(programVisitor):
         n = ctx.getChildCount()
         key = self.visitIdent(ctx.getChild(0))
         nowscopedecl=self.scopeidentdic.get(self.nowscope)
-        # print(self.scopeidentdic)
         if(nowscopedecl[0].get(key) == None and nowscopedecl[1].get(key) == None):
             nowidentdic=nowscopedecl[1]
             nowidentdic[key] = self.visitConstinitval(ctx.getChild(n-1))
@@ -313,10 +297,7 @@ class myVisitor(programVisitor):
                 nowidentdic[key] = self.visitConstinitval(ctx.getChild(n-1))
                 nowscopedecl[1]=nowidentdic
             else:
-                print('same dane~')
                 exit(-1)
-        
-        # print(self.scopeidentdic)
 
     def visitConstinitval(self, ctx: programParser.ConstinitvalContext):
         return self.visitConstexp(ctx.getChild(0))
@@ -337,7 +318,6 @@ class myVisitor(programVisitor):
                 res = self.visitInitval(ctx.getChild(n-1))
                 self.visitres += '@'+key+'= dso_local global i32 '+str(res)+'\n'
             else:
-                print('same dane~')
                 exit(-1)
 
         else:
@@ -345,7 +325,6 @@ class myVisitor(programVisitor):
             self.maxregnum += 1
             key = self.visitIdent(ctx.getChild(0))
             nowscopedecl=self.scopeidentdic.get(self.nowscope)
-            # print(self.scopeidentdic)
             if(nowscopedecl[0].get(key) == None and nowscopedecl[1].get(key) == None):
                 nowidentdic=nowscopedecl[0]
                 nowidentdic[key] = '%g'+str(self.maxregnum)
@@ -359,7 +338,6 @@ class myVisitor(programVisitor):
                 inident=self.scopeidentdic.get(self.nowscope)
                 regout=outident[0].get(key) or outident[1].get(key)
                 regin = inident[0].get(key) or inident[1].get(key)
-                # print('in is'+str(regin)+ ' out is '+ str(regout))
                 if(regin == regout):
                     nowidentdic=nowscopedecl[0]
                     nowidentdic[key]='%g'+str(self.maxregnum)
@@ -369,7 +347,6 @@ class myVisitor(programVisitor):
                     res = self.visitInitval(ctx.getChild(n-1))
                     self.visitres += 'store i32 ' +res+ ', i32* '+nowscopedecl[0].get(key)+'\n'
                 else:
-                    print('same dane~')
                     exit(-1)
             
     def visitNoassigndef(self, ctx: programParser.NoassigndefContext):
@@ -384,11 +361,7 @@ class myVisitor(programVisitor):
                 self.scopeidentdic[self.nowscope]=nowscopedecl
                 self.visitres += '@'+key+'= dso_local global i32 0\n'
             else:
-                print('same dane~')
                 exit(-1)
-
-        # print(nowscopedecl)
-        # print('nowscope is'+str(self.nowscope))
         else:
             n = ctx.getChildCount()
             self.maxregnum += 1
@@ -400,26 +373,20 @@ class myVisitor(programVisitor):
                 nowscopedecl[0]=nowidentdic
                 self.scopeidentdic[self.nowscope]=nowscopedecl
                 self.visitres += '%g'+str(self.maxregnum)+'= alloca i32\n'
-                # print(self.scopeidentdic)
-            # if(self.constdic.get(key) == None and self.identdic.get(key) == None):
-            #     self.identdic[key] = '%g'+str(self.maxregnum)
-            #     self.visitres += '%g'+str(self.maxregnum)+'= alloca i32\n'
             else:
                 lastscope=self.scopehisdic.get(self.nowscope)
                 outident=self.scopeidentdic.get(lastscope)
                 inident=self.scopeidentdic.get(self.nowscope)
                 regout=outident[0].get(key) or outident[1].get(key)
                 regin = inident[0].get(key) or inident[1].get(key)
-                # print('in is'+str(regin)+ ' out is '+ str(regout))
                 if(regin == regout):
                     nowidentdic=nowscopedecl[0]
                     nowidentdic[key]='%g'+str(self.maxregnum)
                     nowscopedecl[0]=nowidentdic
                     self.scopeidentdic[self.nowscope]=nowscopedecl
                     self.visitres += '%g'+str(self.maxregnum)+'= alloca i32\n'
-                    # print(self.scopeidentdic)
+                    
                 else:
-                    print('same dane~')
                     exit(-1)
 
     def visitInitval(self, ctx: programParser.InitvalContext):
@@ -443,9 +410,7 @@ class myVisitor(programVisitor):
         self.maxregnum+=3
         self.labeldic[ifblock]=['%g'+str(self.maxregnum-2),'%g'+str(self.maxregnum-1),'%g'+str(self.maxregnum)]
         ifblockbr=[str(self.maxregnum-2),str(self.maxregnum-1),str(self.maxregnum)]
-        # print(self.labeldic)
         res=self.visitCond(ctx.getChild(2))
-        # print(self.labeldic)
         self.visitres+='g'+ifblockbr[0]+':\n'
         self.visitStmt(ctx.getChild(4))
         self.visitres+='br label %g'+ifblockbr[2]+'\n'
@@ -456,7 +421,6 @@ class myVisitor(programVisitor):
         self.visitres+='br label %g'+ifblockbr[2]+'\n'
         
         self.visitres+='g'+ifblockbr[2]+':\n'
-        # self.nowblock=self.labeldic.get(ifblock)[2][1:]
     
     def visitCond(self, ctx: programParser.CondContext):
         return self.visitLOrexp(ctx.getChild(0))
@@ -465,8 +429,6 @@ class myVisitor(programVisitor):
         n = ctx.getChildCount()
         if(n == 1):
             res1 = self.visitLandexp(ctx.getChild(0))
-            # self.visitres+=self.nowblock+':\n'
-            # self.visitres += 'br i1 '+res1+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             return res1
 
         else:
@@ -476,8 +438,6 @@ class myVisitor(programVisitor):
             self.labeldic[self.nowblock]=self.labeldic.get(lastblock)
             self.labeldic[lastblock]=[self.labeldic.get(self.nowblock)[0],'%g'+self.nowblock,self.labeldic.get(self.nowblock)[2]]
             res2=self.visitLandexp(ctx.getChild(2))
-            # self.visitres+=self.nowblock+':\n'
-            # self.visitres += 'br i1 '+res2+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             self.nowblock=lastblock
             
             res1=self.visitLOrexp(ctx.getChild(0))
@@ -486,11 +446,9 @@ class myVisitor(programVisitor):
     def visitLandexp(self, ctx: programParser.LandexpContext):
         n=ctx.getChildCount()
         if(n==1):
-            # print(self.labeldic)
             
             self.visitres+='g'+self.nowblock+':\n'
             res1=self.visitEqexp(ctx.getChild(0))
-            # self.visitres+='br label %g'+self.nowblock+'\n'
             self.maxregnum+=1
             
             self.visitres+='%g'+str(self.maxregnum)+'= icmp ne i32 '+res1+', 0\n'
