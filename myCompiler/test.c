@@ -1,9 +1,14 @@
 int main() {
-    if(1+2>4||2){
-        return 0;
+    int a, b;
+    a = 070;
+    b = 0x4;
+    a = a - - 4 + + b;
+    if (+-!!!a) {
+        a = - - -1;
     }
-    else{
-        return 2;
+    else {
+        a = 0 + + b;
     }
-    return 1;
+    putint(a);
+    return 0;
 }

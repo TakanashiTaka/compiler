@@ -92,12 +92,12 @@ class myVisitor(programVisitor):
             res2 = self.visitMulexp(ctx.getChild(2))
             self.maxregnum += 1
             if(ctx.getChild(1).getText() == '+'):
-                self.visitres += "%" + \
+                self.visitres += "%g" + \
                     str(self.maxregnum)+" = add i32 "+res1+','+res2+'\n'
             else:
-                self.visitres += "%" + \
+                self.visitres += "%g" + \
                     str(self.maxregnum)+" = sub i32 "+res1+','+res2+'\n'
-            return '%'+str(self.maxregnum)
+            return '%g'+str(self.maxregnum)
 
     def visitMulexp(self, ctx: programParser.MulexpContext):
         n = ctx.getChildCount()
@@ -108,12 +108,12 @@ class myVisitor(programVisitor):
             res2 = self.visitUnaryexp(ctx.getChild(2))
             self.maxregnum += 1
             if(ctx.getChild(1).getText() == '*'):
-                self.visitres += "%" +   str(self.maxregnum)+" = mul i32 "+res1+','+res2+'\n'
+                self.visitres += "%g" +   str(self.maxregnum)+" = mul i32 "+res1+','+res2+'\n'
             elif (ctx.getChild(1).getText() == '/'):
-                self.visitres += "%" +  str(self.maxregnum)+" = sdiv i32 "+res1+','+res2+'\n'
+                self.visitres += "%g" +  str(self.maxregnum)+" = sdiv i32 "+res1+','+res2+'\n'
             else:
-                self.visitres += "%" + str(self.maxregnum)+" = srem i32 "+res1+','+res2+'\n'
-            return '%'+str(self.maxregnum)
+                self.visitres += "%g" + str(self.maxregnum)+" = srem i32 "+res1+','+res2+'\n'
+            return '%g'+str(self.maxregnum)
 
     def visitUnaryexp(self, ctx: programParser.UnaryexpContext):
         n = ctx.getChildCount()
@@ -134,19 +134,19 @@ class myVisitor(programVisitor):
             elif(ctx.getChild(0).getText() == '-'):
                 res = self.visitUnaryexp(ctx.getChild(1))
                 self.maxregnum += 1
-                self.visitres += '%' + \
+                self.visitres += '%g' + \
                     str(self.maxregnum) + '= sub i32 0 ,'+res+'\n'
-                return '%'+str(self.maxregnum)
+                return '%g'+str(self.maxregnum)
             else:
                 res = self.visitUnaryexp(ctx.getChild(1))
                 self.maxregnum += 1
-                self.visitres += '%' + \
+                self.visitres += '%g' + \
                     str(self.maxregnum) + '= icmp eq i32 '+res+', 0\n'
                 self.maxregnum += 1
-                self.visitres += '%' + \
-                    str(self.maxregnum) + '= zext i1 %' + \
+                self.visitres += '%g' + \
+                    str(self.maxregnum) + '= zext i1 %g' + \
                         str(self.maxregnum-1)+' to i32\n'
-                return '%'+str(self.maxregnum)
+                return '%g'+str(self.maxregnum)
 
         else:
             identstr = self.visitIdent(ctx.getChild(0))
@@ -155,7 +155,7 @@ class myVisitor(programVisitor):
                 if(self.funcdic.get('getint') == None):
                     self.visitres = 'declare i32 @getint()\n'+self.visitres
                     self.funcdic['getint'] = True
-                self.visitres += '%' + \
+                self.visitres += '%g' + \
                     str(self.maxregnum) + '= call i32 @getint()\n'
                 if(ctx.getChildCount() != 3):
                     exit(-1)
@@ -164,7 +164,7 @@ class myVisitor(programVisitor):
                 if(self.funcdic.get('getch') == None):
                     self.visitres = 'declare i32 @getch()\n'+self.visitres
                     self.funcdic['getch'] = True
-                self.visitres += '%' + \
+                self.visitres += '%g' + \
                     str(self.maxregnum) + '= call i32 @getch()\n'
                 if(ctx.getChildCount() != 3):
                     exit(-1)
@@ -184,7 +184,7 @@ class myVisitor(programVisitor):
                 self.visitres += 'call void @putch(i32 '+res+')\n'
                 if(ctx.getChild(2).getChildCount() != 1):
                     exit(-1)
-            return '%'+str(self.maxregnum)
+            return '%g'+str(self.maxregnum)
 
     def visitFuncrparams(self, ctx: programParser.FuncrparamsContext):
         return self.visitExp(ctx.getChild(0))
@@ -196,9 +196,9 @@ class myVisitor(programVisitor):
         # self.visitLval(ctx.getChild(0))
         if(self.identdic.get(self.visitIdent(ctx.getChild(0).getChild(0)))):
             self.maxregnum += 1
-            self.visitres += '%'+str(self.maxregnum)+" = load i32, i32* "+self.identdic.get(
+            self.visitres += '%g'+str(self.maxregnum)+" = load i32, i32* "+self.identdic.get(
                 self.visitIdent(ctx.getChild(0).getChild(0)))+'\n'
-            return '%'+str(self.maxregnum)
+            return '%g'+str(self.maxregnum)
         elif(self.constdic.get(self.visitIdent(ctx.getChild(0).getChild(0)))):
             return self.constdic.get(self.visitIdent(ctx.getChild(0).getChild(0)))
 
@@ -248,8 +248,8 @@ class myVisitor(programVisitor):
         self.maxregnum += 1
         key = self.visitIdent(ctx.getChild(0))
         if(self.constdic.get(key) == None and self.identdic.get(key) == None):
-            self.identdic[key] = '%'+str(self.maxregnum)
-            self.visitres += '%'+str(self.maxregnum)+'= alloca i32\n'
+            self.identdic[key] = '%g'+str(self.maxregnum)
+            self.visitres += '%g'+str(self.maxregnum)+'= alloca i32\n'
             res = self.visitInitval(ctx.getChild(n-1))
             self.visitres += 'store i32 ' +res+ ', i32* '+self.identdic.get(key)+'\n'
         else:
@@ -260,8 +260,8 @@ class myVisitor(programVisitor):
         self.maxregnum += 1
         key = self.visitIdent(ctx.getChild(0))
         if(self.constdic.get(key) == None and self.identdic.get(key) == None):
-            self.identdic[key] = '%'+str(self.maxregnum)
-            self.visitres += '%'+str(self.maxregnum)+'= alloca i32\n'
+            self.identdic[key] = '%g'+str(self.maxregnum)
+            self.visitres += '%g'+str(self.maxregnum)+'= alloca i32\n'
         else:
             exit(-1)
 
@@ -274,31 +274,31 @@ class myVisitor(programVisitor):
         res2 = self.visitExp(ctx.getChild(2))
         self.visitres += 'store i32 '+res2+', i32* '+res1+'\n'
         self.maxregnum += 1
-        self.visitres += '%'+str(self.maxregnum)+" = load i32, i32* "+res1+'\n'
+        self.visitres += '%g'+str(self.maxregnum)+" = load i32, i32* "+res1+'\n'
 
     def visitIfstmt(self, ctx: programParser.IfstmtContext):
         n=ctx.getChildCount()
         self.maxregnum+=1
         self.nowblock=str(self.maxregnum)
         self.nowif=self.nowblock
-        self.visitres+='br label %'+self.nowblock+'\n'
+        self.visitres+='br label %g'+self.nowblock+'\n'
         ifblock=self.nowblock
         self.maxregnum+=3
-        self.labeldic[ifblock]=['%'+str(self.maxregnum-2),'%'+str(self.maxregnum-1),'%'+str(self.maxregnum)]
+        self.labeldic[ifblock]=['%g'+str(self.maxregnum-2),'%g'+str(self.maxregnum-1),'%g'+str(self.maxregnum)]
         ifblockbr=[str(self.maxregnum-2),str(self.maxregnum-1),str(self.maxregnum)]
         # print(self.labeldic)
         res=self.visitCond(ctx.getChild(2))
         # print(self.labeldic)
-        self.visitres+=ifblockbr[0]+':\n'
+        self.visitres+='g'+ifblockbr[0]+':\n'
         self.visitStmt(ctx.getChild(4))
-        self.visitres+='br label %'+ifblockbr[2]+'\n'
+        self.visitres+='br label %g'+ifblockbr[2]+'\n'
         
-        self.visitres+=ifblockbr[1]+':\n'
+        self.visitres+='g'+ifblockbr[1]+':\n'
         if(n>5):
             self.visitStmt(ctx.getChild(6))
-        self.visitres+='br label %'+ifblockbr[2]+'\n'
+        self.visitres+='br label %g'+ifblockbr[2]+'\n'
         
-        self.visitres+=ifblockbr[2]+':\n'
+        self.visitres+='g'+ifblockbr[2]+':\n'
         # self.nowblock=self.labeldic.get(ifblock)[2][1:]
     
     def visitCond(self, ctx: programParser.CondContext):
@@ -317,47 +317,47 @@ class myVisitor(programVisitor):
             self.maxregnum+=1
             self.nowblock=str(self.maxregnum)
             self.labeldic[self.nowblock]=self.labeldic.get(lastblock)
-            self.labeldic[lastblock]=[self.labeldic.get(self.nowblock)[0],'%'+self.nowblock,self.labeldic.get(self.nowblock)[2]]
+            self.labeldic[lastblock]=[self.labeldic.get(self.nowblock)[0],'%g'+self.nowblock,self.labeldic.get(self.nowblock)[2]]
             res2=self.visitLandexp(ctx.getChild(2))
             # self.visitres+=self.nowblock+':\n'
             # self.visitres += 'br i1 '+res2+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             self.nowblock=lastblock
             
             res1=self.visitLOrexp(ctx.getChild(0))
-            return '%'+str(self.maxregnum-1)
+            return '%g'+str(self.maxregnum-1)
 
     def visitLandexp(self, ctx: programParser.LandexpContext):
         n=ctx.getChildCount()
         if(n==1):
             # print(self.labeldic)
             
-            self.visitres+=self.nowblock+':\n'
+            self.visitres+='g'+self.nowblock+':\n'
             res1=self.visitEqexp(ctx.getChild(0))
-            # self.visitres+='br label %'+self.nowblock+'\n'
+            # self.visitres+='br label %g'+self.nowblock+'\n'
             self.maxregnum+=1
             
-            self.visitres+='%'+str(self.maxregnum)+'= zext i32 '+res1+' to i1\n'
-            self.visitres += 'br i1 %'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
-            return '%'+str(self.maxregnum)
+            self.visitres+='%g'+str(self.maxregnum)+'= zext i32 '+res1+' to i1\n'
+            self.visitres += 'br i1 %g'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
+            return '%g'+str(self.maxregnum)
         else:
             lastblock=self.nowblock
             self.maxregnum+=1
             self.nowblock=str(self.maxregnum)
             self.labeldic[self.nowblock]=self.labeldic.get(lastblock)
-            self.labeldic[lastblock]=['%'+self.nowblock,self.labeldic.get(self.nowblock)[1],self.labeldic.get(self.nowblock)[2]]
+            self.labeldic[lastblock]=['%g'+self.nowblock,self.labeldic.get(self.nowblock)[1],self.labeldic.get(self.nowblock)[2]]
             
-            self.visitres+=self.nowblock+':\n' 
+            self.visitres+='g'+self.nowblock+':\n' 
             res2=self.visitEqexp(ctx.getChild(2))
             
-            # self.visitres+='br label %'+self.nowblock+'\n'
+            # self.visitres+='br label %g'+self.nowblock+'\n'
             self.maxregnum+=1
-            self.visitres+='%'+str(self.maxregnum)+'= zext i32 '+res2+' to i1\n'
-            self.visitres += 'br i1 %'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
+            self.visitres+='%g'+str(self.maxregnum)+'= zext i32 '+res2+' to i1\n'
+            self.visitres += 'br i1 %g'+str(self.maxregnum)+' , label '+self.labeldic.get(self.nowblock)[0]+' , label '+self.labeldic.get(self.nowblock)[1]+'\n'
             
             self.nowblock=lastblock
             
             res1=self.visitLandexp(ctx.getChild(0))
-            return '%'+str(self.maxregnum-1)
+            return '%g'+str(self.maxregnum-1)
 
 
     def visitEqexp(self, ctx: programParser.EqexpContext):
@@ -370,12 +370,12 @@ class myVisitor(programVisitor):
             cmpsign=ctx.getChild(1).getText()
             self.maxregnum+=1
             if(cmpsign=="=="):
-                self.visitres+='%'+str(self.maxregnum)+' = icmp eq i32 '+res1+' ,'+res2+'\n'
+                self.visitres+='%g'+str(self.maxregnum)+' = icmp eq i32 '+res1+' ,'+res2+'\n'
             else:
-                self.visitres+='%'+str(self.maxregnum)+' = icmp ne i32 '+res1+' ,'+res2+'\n'
+                self.visitres+='%g'+str(self.maxregnum)+' = icmp ne i32 '+res1+' ,'+res2+'\n'
             self.maxregnum+=1
-            self.visitres+='%'+str(self.maxregnum)+' = zext i1 %'+str(self.maxregnum-1)+' to i32\n'
-            return '%'+str(self.maxregnum)
+            self.visitres+='%g'+str(self.maxregnum)+' = zext i1 %g'+str(self.maxregnum-1)+' to i32\n'
+            return '%g'+str(self.maxregnum)
     
     def visitRelexp(self, ctx: programParser.RelexpContext):
         n=ctx.getChildCount()
@@ -387,14 +387,14 @@ class myVisitor(programVisitor):
             cmpsign=ctx.getChild(1).getText()
             self.maxregnum+=1
             if(cmpsign=="<"):
-                self.visitres+='%'+str(self.maxregnum)+' = icmp slt i32 '+res1+' ,'+res2+'\n'
+                self.visitres+='%g'+str(self.maxregnum)+' = icmp slt i32 '+res1+' ,'+res2+'\n'
             elif(cmpsign==">"):
-                self.visitres+='%'+str(self.maxregnum)+' = icmp sgt i32 '+res1+' ,'+res2+'\n'
+                self.visitres+='%g'+str(self.maxregnum)+' = icmp sgt i32 '+res1+' ,'+res2+'\n'
             elif(cmpsign=="<="):
-                self.visitres+='%'+str(self.maxregnum)+' = icmp sle i32 '+res1+' ,'+res2+'\n'
+                self.visitres+='%g'+str(self.maxregnum)+' = icmp sle i32 '+res1+' ,'+res2+'\n'
             elif(cmpsign==">="):
-                self.visitres+='%'+str(self.maxregnum)+' = icmp sge i32 '+res1+' ,'+res2+'\n'
+                self.visitres+='%g'+str(self.maxregnum)+' = icmp sge i32 '+res1+' ,'+res2+'\n'
             self.maxregnum+=1
-            self.visitres+='%'+str(self.maxregnum)+' = zext i1 %'+str(self.maxregnum-1)+' to i32\n'
-            return '%'+str(self.maxregnum)
+            self.visitres+='%g'+str(self.maxregnum)+' = zext i1 %g'+str(self.maxregnum-1)+' to i32\n'
+            return '%g'+str(self.maxregnum)
     
