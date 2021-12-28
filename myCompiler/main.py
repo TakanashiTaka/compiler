@@ -21,7 +21,7 @@ def main(argv):
     tree = parser.codes()
     # print('finish')
     v= myVisitor()
-    v.visit(tree)
+    # v.visit(tree)
     # print(v.visitres)
     print(input_)
     # print('visit finish')
