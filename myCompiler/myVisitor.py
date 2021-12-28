@@ -11,17 +11,16 @@ class myVisitor(programVisitor):
     def __init__(self):
         self.regnum = 0
         self.maxregnum = 0
-        self.identdic = {}
-        self.constdic = {}
         self.visitres = ''
         self.funcdic = {}
         self.labeldic = {}
         self.nowblock = '0'
-        self.nowif='0'
         self.scopehisdic={0:-1}
         self.scopeidentdic={0:[{},{}]}
         self.nowscope=0
         self.maxscope=0
+        self.nowwhilecond='0'
+        self.nowwhileout='0'
 
     def visit(self, tree):
         super().visit(tree)
@@ -400,11 +399,32 @@ class myVisitor(programVisitor):
         self.maxregnum += 1
         self.visitres += '%g'+str(self.maxregnum)+" = load i32, i32* "+res1+'\n'
 
+    def visitWhilestmt(self, ctx: programParser.WhilestmtContext):
+        self.maxregnum+=1
+        self.nowblock=str(self.maxregnum)
+        self.visitres+='br label %g'+self.nowblock+'\n'
+        whileblock=self.nowblock
+        self.nowwhilecond=self.nowblock
+        self.maxregnum+=2
+        self.nowwhileout=str(self.maxregnum)
+        self.labeldic[whileblock]=['%g'+str(self.maxregnum-1),'%g'+str(self.maxregnum),'%g'+str(self.maxregnum)]
+        whileblockbr=[str(self.maxregnum-1),str(self.maxregnum),str(self.maxregnum-2)]
+        res=self.visitCond(ctx.getChild(2))
+        self.visitres+='g'+whileblockbr[0]+':\n'
+        self.visitStmt(ctx.getChild(4))
+        self.visitres+='br label %g'+whileblockbr[2]+'\n'
+        self.visitres+='g'+whileblockbr[1]+':\n'
+
+    def visitContinuestmt(self, ctx: programParser.ContinuestmtContext):
+        self.visitres+='br label %g'+self.nowwhilecond+'\n'
+
+    def visitBreakstmt(self, ctx: programParser.BreakstmtContext):
+        self.visitres+='br label %g'+self.nowwhileout+'\n'
+
     def visitIfstmt(self, ctx: programParser.IfstmtContext):
         n=ctx.getChildCount()
         self.maxregnum+=1
         self.nowblock=str(self.maxregnum)
-        self.nowif=self.nowblock
         self.visitres+='br label %g'+self.nowblock+'\n'
         ifblock=self.nowblock
         self.maxregnum+=3
