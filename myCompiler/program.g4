@@ -23,9 +23,6 @@ funcfparams: funcfparam ( COMMA funcfparam)*;
 funcfparam: bType ident (Lsb Rsb ( Lsb exp Rsb)*)?;
 block: Lcb ( blockitem)* Rcb;
 blockitem: decl | stmt;
-// stmt: lval ASSIGN exp SEMI # assignstmt | (exp)? SEMI # normalstmt | block # blockstmt | IF Lb
-// cond Rb stmt ( ELSE stmt)? # ifstmt | WHILE Lb cond Rb stmt # whilestmt | BREAK SEMI # breakstmt
-// | CONTINUE SEMI # continuestmt | RETURN (exp)? SEMI # returnstmt;
 
 stmt:
 	assignstmt
