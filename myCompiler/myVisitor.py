@@ -711,6 +711,9 @@ class myVisitor(programVisitor):
                     nowidentdic[key] = '%g'+str(self.maxregnum)
                     nowscopedecl[0] = nowidentdic
                     self.scopeidentdic[self.nowscope] = nowscopedecl
+                    self.maxregnum+=1
+                    self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
+                    
                     self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                     res = self.visitInitval(ctx.getChild(n-1))
@@ -730,6 +733,9 @@ class myVisitor(programVisitor):
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
+                        
                         self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                         res = self.visitInitval(ctx.getChild(n-1))
@@ -746,6 +752,9 @@ class myVisitor(programVisitor):
                         todelidentdic.pop(key)
                         nowscopedecl[1]=todelidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
+                        
                         self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                         res = self.visitInitval(ctx.getChild(n-1))
@@ -853,7 +862,9 @@ class myVisitor(programVisitor):
                     nowidentdic[key] = '%g'+str(self.maxregnum)
                     nowscopedecl[0] = nowidentdic
                     self.scopeidentdic[self.nowscope] = nowscopedecl
-                       
+                    self.maxregnum+=1
+                    self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
+                    
                     self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                 else:
@@ -871,6 +882,8 @@ class myVisitor(programVisitor):
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         
                         self.visitres += 'call void @memset(i32* %g'+str(
                             self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
@@ -885,6 +898,8 @@ class myVisitor(programVisitor):
                         todelidentdic.pop(key)
                         nowscopedecl[1]=todelidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         
                         self.visitres += 'call void @memset(i32* %g'+str(
                             self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
