@@ -112,7 +112,7 @@ Hexadecimal_digit: [0-9] | [a-f] | [A-F];
 
 Digit: [0-9];
 
-Ignore_single: '//' .*? '\r'? '\n' -> skip;
+Ignore_single: '//' .*? (('\r'? '\n')|EOF) -> skip;
 Ignore_multi: '/*' .*? '*/' -> skip;
 Blank: (' ' | '\r' | '\n')+ -> skip;
 
