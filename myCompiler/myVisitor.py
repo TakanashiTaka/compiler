@@ -1,3 +1,4 @@
+from typing import List
 from antlr4 import *
 from programVisitor import programVisitor
 from programLexer import programLexer
@@ -358,8 +359,13 @@ class myVisitor(programVisitor):
             key = self.visitIdent(ctx.getChild(0))
             for i in range(2, n, 3):
                 res.append(self.visitExp(ctx.getChild(i)))
+            pos=self.getpos(res,self.arraydic.get(key+'+'+str(self.nowscope)))
             
-            return res
+            self.maxregnum+=1
+            self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* ' + \
+                self.scopeidentdic.get(self.nowscope)[0].get(
+                    key)+', i32 '+str(pos)+'\n'
+            return '%g'+str(self.maxregnum)
 
     def visitNumberexp(self, ctx: programParser.NumberexpContext):
         numstr = ctx.getText()
@@ -474,16 +480,37 @@ class myVisitor(programVisitor):
             print('cannot compute')
             exit(-1)
         lena = len(pos)
-        res = 0
+        # for i in range(lena):
+        #     lenb = int(pos[i])
+        #     if(i < lena-1):
+        #         for m in range(i+1, lena):
+        #             lenb *= int(lens[m])
+        #         res += lenb
+        #     else:
+        #         res += int(pos[i])
+        
+        if(lena==1):
+            return str(pos[0])
+        lastreg=0
         for i in range(lena):
-            lenb = int(pos[i])
             if(i < lena-1):
                 for m in range(i+1, lena):
-                    lenb *= int(lens[m])
-                res += lenb
+                    self.maxregnum+=1
+                    if(m==i+1):
+                        self.visitres+='%g'+str(self.maxregnum)+'= mul i32 '+str(pos[i])+' ,'+str(lens[m])+'\n'
+                    else:
+                        self.visitres+='%g'+str(self.maxregnum)+'= mul i32 %g'+str(self.maxregnum-1)+' ,'+str(lens[m])+'\n'
+                if(i==0):
+                    lastreg=self.maxregnum
+                else:
+                    self.maxregnum+=1
+                    self.visitres+='%g'+str(self.maxregnum)+'= add i32 %g'+str(self.maxregnum-1)+', %g'+str(lastreg)+'\n'
+                    lastreg=self.maxregnum
             else:
-                res += int(pos[i])
-        return res
+                self.maxregnum+=1
+                self.visitres+='%g'+str(self.maxregnum)+'= add i32 %g'+str(self.maxregnum-1)+','+str(pos[i])+'\n'
+
+        return '%g'+str(self.maxregnum)
 
     def compileArray(self, nums, pos: list, key, deep):
         if(type(nums) == list):
@@ -493,8 +520,9 @@ class myVisitor(programVisitor):
                 pos1.append(i)
                 self.compileArray(nums[i], pos1, key, deep+1)
         else:
-            self.maxregnum += 1
             respos = self.getpos(pos, self.arraydic.get(key+'+'+str(self.nowscope)))
+            
+            self.maxregnum += 1
             self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* ' + \
                 self.scopeidentdic.get(self.nowscope)[0].get(
                     key)+', i32 '+str(respos)+'\n'
@@ -806,7 +834,7 @@ class myVisitor(programVisitor):
         self.visitres += 'store i32 '+str(res2)+', i32* '+str(res1)+'\n'
         self.maxregnum += 1
         self.visitres += '%g'+str(self.maxregnum) + \
-            " = load i32, i32* "+str(res1)+'\n'
+                " = load i32, i32* "+str(res1)+'\n'
 
     def visitWhilestmt(self, ctx: programParser.WhilestmtContext):
         self.maxregnum += 1
