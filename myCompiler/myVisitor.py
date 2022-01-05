@@ -553,7 +553,7 @@ class myVisitor(programVisitor):
             self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* %g' + \
                 str(self.maxregnum-1)+', i32 '+str(respos)+'\n'
             self.visitres += 'store i32 '+nums + \
-                ',i32 %g'+str(self.maxregnum)+'\n'
+                ',i32* %g'+str(self.maxregnum)+'\n'
 
     def getInitPos(self,nums,pos:list,key,deep,allpos:dict):
         if(type(nums) == list):
