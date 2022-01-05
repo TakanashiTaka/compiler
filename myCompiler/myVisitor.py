@@ -550,7 +550,7 @@ class myVisitor(programVisitor):
                     key)+', i32 0, i32 0\n'
 
             self.maxregnum += 1
-            self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* ' + \
+            self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* %g' + \
                 str(self.maxregnum-1)+', i32 '+str(respos)+'\n'
             self.visitres += 'store i32 '+nums + \
                 ',i32 %g'+str(self.maxregnum)+'\n'

@@ -114,5 +114,5 @@ Digit: [0-9];
 
 Ignore_single: '//' .*? (('\r'? '\n')|EOF) -> skip;
 Ignore_multi: '/*' .*? '*/' -> skip;
-Blank: (' ' | '\r' | '\n')+ -> skip;
+Blank: (' ' | '\r' | '\n' | '\t')+ -> skip;
 
