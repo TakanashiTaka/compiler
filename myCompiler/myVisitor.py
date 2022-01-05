@@ -29,7 +29,6 @@ class myVisitor(programVisitor):
     def visit(self, tree):
         super().visit(tree)
         print(self.visitres)
-
     # def visitChildren(self, node):
     #     retres = 0
     #     retreg = self.maxregnum
@@ -322,8 +321,17 @@ class myVisitor(programVisitor):
                         for i in range(2,m,3):
                             pos.append(self.visitExp(ctx.getChild(0).getChild(i)))
                         linepos=self.getpos(pos,self.arraydic.get(key+'+'+str(self.nowscope)))
+                        
                         self.maxregnum+=1
-                        self.visitres+='%g'+str(self.maxregnum)+" = getelementptr i32, i32 * "+a[0].get(key)+', i32 '+str(linepos)+'\n'
+                        lens=self.arraydic.get(key+'+'+str(self.nowscope))
+                        totlen=1
+                        for i in range(len(lens)):
+                            totlen*=int(lens[i])
+                        self.visitres+='%g'+str(self.maxregnum)+' = getelementptr ['+str(totlen)+' x i32],' \
+                            +'['+str(totlen)+' x i32]* '+a[0].get(key)+', i32 0, i32 0\n'
+
+                        self.maxregnum+=1
+                        self.visitres+='%g'+str(self.maxregnum)+" = getelementptr i32, i32 * %g"+str(self.maxregnum-1)+', i32 '+str(linepos)+'\n'
                         self.maxregnum+=1
                         self.visitres+='%g'+str(self.maxregnum)+" = load i32, i32* %g"+str(self.maxregnum-1)+'\n'
                         return '%g'+str(self.maxregnum)
@@ -362,9 +370,18 @@ class myVisitor(programVisitor):
             pos=self.getpos(res,self.arraydic.get(key+'+'+str(self.nowscope)))
             
             self.maxregnum+=1
-            self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* ' + \
-                self.scopeidentdic.get(self.nowscope)[0].get(
-                    key)+', i32 '+str(pos)+'\n'
+            lens=self.arraydic.get(key+'+'+str(self.nowscope))
+            totlen=1
+            for i in range(len(lens)):
+                totlen*=int(lens[i])
+            self.visitres+='%g'+str(self.maxregnum)+' = getelementptr ['+str(totlen)+' x i32],' \
+                            +'['+str(totlen)+' x i32]* '+self.scopeidentdic.get(self.nowscope)[0].get(
+                    key)+', i32 0, i32 0\n'
+
+
+            self.maxregnum+=1
+            self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* %g' + \
+                str(self.maxregnum-1)+', i32 '+str(pos)+'\n'
             return '%g'+str(self.maxregnum)
 
     def visitNumberexp(self, ctx: programParser.NumberexpContext):
@@ -497,9 +514,9 @@ class myVisitor(programVisitor):
                 for m in range(i+1, lena):
                     self.maxregnum+=1
                     if(m==i+1):
-                        self.visitres+='%g'+str(self.maxregnum)+'= mul i32 '+str(pos[i])+' ,'+str(lens[m])+'\n'
+                        self.visitres+='%g'+str(self.maxregnum)+' = mul i32 '+str(pos[i])+' ,'+str(lens[m])+'\n'
                     else:
-                        self.visitres+='%g'+str(self.maxregnum)+'= mul i32 %g'+str(self.maxregnum-1)+' ,'+str(lens[m])+'\n'
+                        self.visitres+='%g'+str(self.maxregnum)+' = mul i32 %g'+str(self.maxregnum-1)+' ,'+str(lens[m])+'\n'
                 if(i==0):
                     lastreg=self.maxregnum
                 else:
@@ -512,6 +529,7 @@ class myVisitor(programVisitor):
 
         return '%g'+str(self.maxregnum)
 
+
     def compileArray(self, nums, pos: list, key, deep):
         if(type(nums) == list):
             m = len(nums)
@@ -522,12 +540,61 @@ class myVisitor(programVisitor):
         else:
             respos = self.getpos(pos, self.arraydic.get(key+'+'+str(self.nowscope)))
             
+            self.maxregnum+=1
+            lens=self.arraydic.get(key+'+'+str(self.nowscope))
+            totlen=1
+            for i in range(len(lens)):
+                totlen*=int(lens[i])
+            self.visitres+='%g'+str(self.maxregnum)+' = getelementptr ['+str(totlen)+' x i32],' \
+                            +'['+str(totlen)+' x i32]* '+self.scopeidentdic.get(self.nowscope)[0].get(
+                    key)+', i32 0, i32 0\n'
+
             self.maxregnum += 1
             self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* ' + \
-                self.scopeidentdic.get(self.nowscope)[0].get(
-                    key)+', i32 '+str(respos)+'\n'
+                str(self.maxregnum-1)+', i32 '+str(respos)+'\n'
             self.visitres += 'store i32 '+nums + \
                 ',i32 %g'+str(self.maxregnum)+'\n'
+
+    def getInitPos(self,nums,pos:list,key,deep,allpos:dict):
+        if(type(nums) == list):
+            m = len(nums)
+            for i in range(m):
+                pos1 = copy.deepcopy(pos)
+                pos1.append(i)
+                self.getInitPos(nums[i], pos1, key, deep+1,allpos)
+        else:
+            respos = self.getnumpos(pos, self.arraydic.get(key+'+'+str(self.nowscope)))
+            allpos[respos]=nums
+    
+    def getnumpos(self,pos,lens):
+        if(len(pos) != len(lens)):
+            print('cannot compute')
+            exit(-1)
+        lena = len(pos)
+        res=0
+        for i in range(lena):
+            lenb = int(pos[i])
+            if(i < lena-1):
+                for m in range(i+1, lena):
+                    lenb *= int(lens[m])
+                res += lenb
+            else:
+                res += int(pos[i])
+        return res
+
+    def compileGlobalArray(self,totlen,allpos:dict):
+        resstr='['
+        for i in range(totlen):
+            if(allpos.get(i)):
+                resstr+='i32 '+str(allpos.get(i))
+            else:
+                resstr+='i32 0'
+            if(i<totlen-1):
+                resstr+=','
+            else:
+                resstr+=']'
+        return resstr
+            
 
     def visitAssigndef(self, ctx: programParser.AssigndefContext):
         if(self.nowscope == 0):
@@ -560,11 +627,13 @@ class myVisitor(programVisitor):
                     nowidentdic[key] = '@'+key
                     nowscopedecl[0] = nowidentdic
                     self.scopeidentdic[self.nowscope] = nowscopedecl
+                    res = self.visitInitval(ctx.getChild(n-1))
+                    allpos={}
+                    self.getInitPos(res,[],key,0,allpos)
+                    initstr=self.compileGlobalArray(totlen,allpos)
                     self.visitres += '@'+key + \
                         '= dso_local global [' + \
-                        str(totlen)+' x i32] zeroinitializer\n'
-                    res = self.visitInitval(ctx.getChild(n-1))
-                    self.compileArray(res, [], key, 0)
+                        str(totlen)+' x i32] '+initstr+'\n'
                 else:
                     exit(-1)
 
@@ -634,13 +703,16 @@ class myVisitor(programVisitor):
                 for i in range(0, len(lens)):
                     totlen *= int(lens[i])
                 if(nowscopedecl[0].get(key) == None and nowscopedecl[1].get(key) == None):
+                    
+                    self.visitres += '%g' + \
+                        str(self.maxregnum) + \
+                        '= alloca ['+str(totlen) + ' x i32] \n'
+                    self.maxregnum+=1
+                    self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                     nowidentdic = nowscopedecl[0]
                     nowidentdic[key] = '%g'+str(self.maxregnum)
                     nowscopedecl[0] = nowidentdic
                     self.scopeidentdic[self.nowscope] = nowscopedecl
-                    self.visitres += '%g' + \
-                        str(self.maxregnum) + \
-                        '= alloca ['+str(totlen) + ' x i32] \n'
                     self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                     res = self.visitInitval(ctx.getChild(n-1))
@@ -653,18 +725,26 @@ class myVisitor(programVisitor):
                     regin0 = inident[0].get(key)
                     regin1 = inident[1].get(key)
                     if(regin0 == regout):
+                        self.visitres += '%g' + \
+                            str(self.maxregnum) + \
+                            '= alloca ['+str(totlen) + ' x i32] \n'
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
-                        self.visitres += '%g' + \
-                            str(self.maxregnum) + \
-                            '= alloca ['+str(totlen) + ' x i32] \n'
                         self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                         res = self.visitInitval(ctx.getChild(n-1))
                         self.compileArray(res, [], key, 0)
                     elif(regin1 == regout):
+                        
+                        self.visitres += '%g' + \
+                            str(self.maxregnum) + \
+                            '= alloca ['+str(totlen) + ' x i32] \n'
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
@@ -672,9 +752,6 @@ class myVisitor(programVisitor):
                         todelidentdic.pop(key)
                         nowscopedecl[1]=todelidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
-                        self.visitres += '%g' + \
-                            str(self.maxregnum) + \
-                            '= alloca ['+str(totlen) + ' x i32] \n'
                         self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                         res = self.visitInitval(ctx.getChild(n-1))
@@ -775,13 +852,16 @@ class myVisitor(programVisitor):
                 for i in range(0, len(lens)):
                     totlen *= int(lens[i])
                 if(nowscopedecl[0].get(key) == None and nowscopedecl[1].get(key) == None):
+                    self.visitres += '%g' + \
+                        str(self.maxregnum) + \
+                        '= alloca ['+str(totlen) + ' x i32] \n'
+                    self.maxregnum+=1
+                    self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                     nowidentdic = nowscopedecl[0]
                     nowidentdic[key] = '%g'+str(self.maxregnum)
                     nowscopedecl[0] = nowidentdic
                     self.scopeidentdic[self.nowscope] = nowscopedecl
-                    self.visitres += '%g' + \
-                        str(self.maxregnum) + \
-                        '= alloca ['+str(totlen) + ' x i32] \n'
+                       
                     self.visitres += 'call void @memset(i32* %g'+str(
                         self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                 else:
@@ -792,16 +872,24 @@ class myVisitor(programVisitor):
                     regin0 = inident[0].get(key)
                     regin1 = inident[1].get(key)
                     if(regin0 == regout):
+                        self.visitres += '%g' + \
+                            str(self.maxregnum) + \
+                            '= alloca ['+str(totlen) + ' x i32] \n'
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
-                        self.visitres += '%g' + \
-                            str(self.maxregnum) + \
-                            '= alloca ['+str(totlen) + ' x i32] \n'
+                        
                         self.visitres += 'call void @memset(i32* %g'+str(
                             self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                     elif(regin1 == regout):
+                        self.visitres += '%g' + \
+                            str(self.maxregnum) + \
+                            '= alloca ['+str(totlen) + ' x i32] \n'
+                        self.maxregnum+=1
+                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
@@ -809,9 +897,7 @@ class myVisitor(programVisitor):
                         todelidentdic.pop(key)
                         nowscopedecl[1]=todelidentdic
                         self.scopeidentdic[self.nowscope] = nowscopedecl
-                        self.visitres += '%g' + \
-                            str(self.maxregnum) + \
-                            '= alloca ['+str(totlen) + ' x i32] \n'
+                        
                         self.visitres += 'call void @memset(i32* %g'+str(
                             self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                     else:
