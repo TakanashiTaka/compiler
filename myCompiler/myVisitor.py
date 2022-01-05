@@ -707,8 +707,6 @@ class myVisitor(programVisitor):
                     self.visitres += '%g' + \
                         str(self.maxregnum) + \
                         '= alloca ['+str(totlen) + ' x i32] \n'
-                    self.maxregnum+=1
-                    self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                     nowidentdic = nowscopedecl[0]
                     nowidentdic[key] = '%g'+str(self.maxregnum)
                     nowscopedecl[0] = nowidentdic
@@ -728,8 +726,6 @@ class myVisitor(programVisitor):
                         self.visitres += '%g' + \
                             str(self.maxregnum) + \
                             '= alloca ['+str(totlen) + ' x i32] \n'
-                        self.maxregnum+=1
-                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
@@ -743,8 +739,6 @@ class myVisitor(programVisitor):
                         self.visitres += '%g' + \
                             str(self.maxregnum) + \
                             '= alloca ['+str(totlen) + ' x i32] \n'
-                        self.maxregnum+=1
-                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
@@ -855,8 +849,6 @@ class myVisitor(programVisitor):
                     self.visitres += '%g' + \
                         str(self.maxregnum) + \
                         '= alloca ['+str(totlen) + ' x i32] \n'
-                    self.maxregnum+=1
-                    self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                     nowidentdic = nowscopedecl[0]
                     nowidentdic[key] = '%g'+str(self.maxregnum)
                     nowscopedecl[0] = nowidentdic
@@ -875,8 +867,6 @@ class myVisitor(programVisitor):
                         self.visitres += '%g' + \
                             str(self.maxregnum) + \
                             '= alloca ['+str(totlen) + ' x i32] \n'
-                        self.maxregnum+=1
-                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
@@ -888,8 +878,6 @@ class myVisitor(programVisitor):
                         self.visitres += '%g' + \
                             str(self.maxregnum) + \
                             '= alloca ['+str(totlen) + ' x i32] \n'
-                        self.maxregnum+=1
-                        self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(totlen)+' x i32], '+'['+str(totlen)+' x i32]* %g'+str(self.maxregnum-1)+', i32 0, i32 0\n'
                         nowidentdic = nowscopedecl[0]
                         nowidentdic[key] = '%g'+str(self.maxregnum)
                         nowscopedecl[0] = nowidentdic
