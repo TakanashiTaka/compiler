@@ -926,6 +926,8 @@ class myVisitor(programVisitor):
                 " = load i32, i32* "+str(res1)+'\n'
 
     def visitWhilestmt(self, ctx: programParser.WhilestmtContext):
+        oldout=self.nowwhileout
+        oldcond=self.nowwhilecond
         self.maxregnum += 1
         self.nowblock = str(self.maxregnum)
         self.visitres += 'br label %g'+self.nowblock+'\n'
@@ -942,6 +944,8 @@ class myVisitor(programVisitor):
         self.visitStmt(ctx.getChild(4))
         self.visitres += 'br label %g'+whileblockbr[2]+'\n'
         self.visitres += 'g'+whileblockbr[1]+':\n'
+        self.nowwhileout=oldout
+        self.nowwhilecond=oldcond
 
     def visitContinuestmt(self, ctx: programParser.ContinuestmtContext):
         self.visitres += 'br label %g'+self.nowwhilecond+'\n'
