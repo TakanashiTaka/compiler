@@ -79,7 +79,7 @@ class myVisitor(programVisitor):
         self.visitres += '{\n'
         self.visitBlock(ctx.getChild(n-1))
         if(self.visitres[-2]==':'):
-            self.visitres+='ret void\n'
+            self.visitres+='%m = alloca i32\n'
         self.visitres += '}\n'
 
     def visitFuncfparams(self, ctx: programParser.FuncfparamsContext):
