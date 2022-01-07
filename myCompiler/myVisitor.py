@@ -26,20 +26,19 @@ class myVisitor(programVisitor):
         self.nowwhileout = '0'
         self.nowconst = False
         self.myfuncdic = {
-            'memset': ['void', ['i32*', 'i32', 'i32']],
-            'getint': ['int', []],
-            'getch': ['int', []],
-            'putint': ['void', ['i32']],
-            'putch': ['void', ['i32']],
-            'getarray': ['int', ['i32*']],
-            'putarray': ['void', ['i32', 'i32*']]
+            'memset': ['void', ['i32*', 'i32', 'i32'],[1,0,0]],
+            'getint': ['int', [],[]],
+            'getch': ['int', [],[]],
+            'putint': ['void', ['i32'],[0]],
+            'putch': ['void', ['i32'],[0]],
+            'getarray': ['int', ['i32*'],[1]],
+            'putarray': ['void', ['i32', 'i32*'],[0,1]]
         }
         self.nowfuncparams = {}
 
     def visit(self, tree):
         super().visit(tree)
         print(self.visitres)
-        # print(self.arraydic)
     # def visitChildren(self, node):
     #     retres = 0
     #     retreg = self.maxregnum
@@ -66,27 +65,34 @@ class myVisitor(programVisitor):
         funcname = self.visitIdent(ctx.getChild(1))
         self.visitres += '@'+funcname
         paramlist = []
+        paradimlist=[]
         for i in range(2, n-1):
             if (ctx.getChild(i).getText() == '('):
                 self.visitres += '('
             elif (ctx.getChild(i).getText() == ')'):
                 self.visitres += ')'
             else:
-                paramlist = self.visitFuncfparams(ctx.getChild(i))
+                paramlist,paradimlist = self.visitFuncfparams(ctx.getChild(i))
         statelist.append(paramlist)
+        statelist.append(paradimlist)
         self.myfuncdic[funcname] = statelist
         self.visitres += '{\n'
         self.visitBlock(ctx.getChild(n-1))
+        if(self.visitres[-2]==':'):
+            self.visitres+='ret void\n'
         self.visitres += '}\n'
 
     def visitFuncfparams(self, ctx: programParser.FuncfparamsContext):
         n = ctx.getChildCount()
         paramlist = []
+        paradimlist=[]
         for i in range(0, n, 2):
-            paramlist.append(self.visitFuncfparam(ctx.getChild(i)))
+            res1,res2=self.visitFuncfparam(ctx.getChild(i))
+            paramlist.append(res1)
+            paradimlist.append(res2)
             if(i < n-1):
                 self.visitres += ','
-        return paramlist
+        return paramlist,paradimlist
 
     def visitFuncfparam(self, ctx: programParser.FuncfparamContext):
         n = ctx.getChildCount()
@@ -95,7 +101,7 @@ class myVisitor(programVisitor):
             self.visitres += 'i32 %g'+str(self.maxregnum)
             ident = self.visitIdent(ctx.getChild(1))
             self.nowfuncparams[ident] = ['%g'+str(self.maxregnum), 'i32']
-            return 'i32'
+            return 'i32',0
         else:
             self.maxregnum += 1
             self.visitres += 'i32* %g'+str(self.maxregnum)
@@ -108,9 +114,9 @@ class myVisitor(programVisitor):
                     res = self.visitExp(ctx.getChild(i))
                     totlen *= int(res)
                     lens.append(int(res))
-            self.nowfuncparams[ident] = ['%g'+str(self.maxregnum), 'i32*']
+            self.nowfuncparams[ident] = ['%g'+str(self.maxregnum), 'i32*',len(lens)]
             self.arraydic[ident+'+'+str(self.maxscope+1)] = lens
-            return 'i32*'
+            return 'i32*',len(lens)
 
     def visitIdent(self, ctx: programParser.IdentContext):
         return ctx.getText()
@@ -165,7 +171,7 @@ class myVisitor(programVisitor):
             res = self.visitExp(ctx.getChild(1))
             self.visitres += 'ret i32 '+str(res)+'\n'
         elif(n == 2):
-            self.visitres += 'ret\n'
+            self.visitres += 'ret void\n'
 
     def visitExp(self, ctx: programParser.ExpContext):
         return self.visitAddexp(ctx.getChild(0))
@@ -316,6 +322,7 @@ class myVisitor(programVisitor):
                     if(func):
                         if(func[0] == 'int'):
                             if(n == 3):
+
                                 self.maxregnum += 1
                                 self.visitres += '%g' + \
                                     str(self.maxregnum) + \
@@ -326,8 +333,24 @@ class myVisitor(programVisitor):
                                 self.maxregnum += 1
                                 parastr = ''
                                 for i in range(len(res)):
-                                    parastr += self.myfuncdic.get(
-                                        identstr)[1][i]+' '+str(res[i])
+                                    if(func[1][i]=='i32'):
+                                        parastr += func[1][i]+' '+str(res[i])
+                                    else:
+                                        dim=func[2][i]
+                                        text=ctx.getChild(2).getChild(2*i).getText()
+                                        j=len(text)
+                                        todeldim=0
+                                        flag=1
+                                        for k in range(len(text)):
+                                            if(text[k]=='['):
+                                                if(flag==1):
+                                                    j=k
+                                                    flag=0
+                                                todeldim+=1
+                                        if(dim!=len(self.arraydic.get(text[:j]+'+'+str(self.nowscope)))-todeldim):
+                                            print('input dim err1')
+                                            exit(-1)
+                                        parastr += func[1][i]+' '+str(res[i])
                                     if(i < len(res)-1):
                                         parastr += ', '
                                 self.visitres += '%g' + \
@@ -341,8 +364,25 @@ class myVisitor(programVisitor):
                                     ctx.getChild(2))
                                 parastr = ''
                                 for i in range(len(res)):
-                                    parastr += self.myfuncdic.get(
-                                        identstr)[1][i]+' '+str(res[i])
+                                    if(func[1][i]=='i32'):
+                                        parastr += func[1][i]+' '+str(res[i])
+                                    else:
+                                        dim=func[2][i]
+                                        text=ctx.getChild(2).getChild(2*i).getText()
+                                        
+                                        j=len(text)
+                                        todeldim=0
+                                        flag=1
+                                        for k in range(len(text)):
+                                            if(text[k]=='['):
+                                                if(flag==1):
+                                                    j=k
+                                                    flag=0
+                                                todeldim+=1
+                                        if(dim!=len(self.arraydic.get(text[:j]+'+'+str(self.nowscope)))-todeldim):
+                                            print('input dim err2')
+                                            exit(-1)
+                                        parastr += func[1][i]+' '+str(res[i])
                                     if(i < len(res)-1):
                                         parastr += ', '
                                 self.visitres += 'call void @' + \
@@ -613,18 +653,7 @@ class myVisitor(programVisitor):
         return res
 
     def getpos(self, pos, lens):
-        # if(len(pos) != len(lens)):
-        #     print('cannot compute')
-        #     exit(-1)
         lena = len(pos)
-        # for i in range(lena):
-        #     lenb = int(pos[i])
-        #     if(i < lena-1):
-        #         for m in range(i+1, lena):
-        #             lenb *= int(lens[m])
-        #         res += lenb
-        #     else:
-        #         res += int(pos[i])
 
         if(lena == 1):
             return str(pos[0])
