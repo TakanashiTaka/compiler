@@ -1,36 +1,27 @@
-int ans[50], sum = 0, n;
+void move(int x, int y) {
+    putint(x);
+    putch(32);
+    putint(y);
+    putch(44);
+    putch(32);
+}
 
-int row[50], line1[50], line2[100];
-
-void printans() {
-    sum   = sum + 1;
-    int i = 1;
-    while (i <= n) {
-        putint(ans[i]);
-        if (i == n) {
-            putch(10);
-            return;
-        } else
-            putch(32);
-        i = i + 1;
+void hanoi(int n, int one, int two, int three) {
+    if (n == 1)
+        move(one, three);
+    else {
+        hanoi(n - 1, one, three, two);
+        move(one, three);
+        hanoi(n - 1, two, one, three);
     }
 }
 
-void f(int step) {
-    int i = 1;
-    while (i <= n) {
-        if (row[i] != 1 && line1[step + i] == 0 && !line2[n + step - i]) {
-            ans[step] = i;
-            if (step == n)
-                printans();
-            row[i]              = 1;
-            line1[step + i]     = 1;
-            line2[n + step - i] = 1;
-            f(step + 1);
-            row[i]              = 0;
-            line1[step + i]     = 0;
-            line2[n + step - i] = 0;
-        }
-        i = i + 1;
+int main() {
+    int n = getint();
+    while (n > 0) {
+        hanoi(getint(), 1, 2, 3);
+        putch(10);
+        n = n - 1;
     }
+    return 0;
 }

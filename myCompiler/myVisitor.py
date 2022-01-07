@@ -83,6 +83,8 @@ class myVisitor(programVisitor):
                 self.visitres+='ret i32 0\n'
             else:
                 self.visitres+='ret void\n'
+        if(functype=='void'):
+            self.visitres+='ret void\n'
         self.visitres += '}\n'
 
     def visitFuncfparams(self, ctx: programParser.FuncfparamsContext):
