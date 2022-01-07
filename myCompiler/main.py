@@ -9,6 +9,8 @@ from myErrorListener import myErrorListener
  
 def main(argv):
     input_ = FileStream(argv[1])
+    
+    print(input_)
     lexer = programLexer(input_)
     stream = CommonTokenStream(lexer)
     # print('lexer ok')
@@ -23,7 +25,6 @@ def main(argv):
     v= myVisitor()
     v.visit(tree)
     # print(v.visitres)
-    # print(input_)
     # print('visit finish')
     # print(tree.toStringTree(programParser.ruleNames))
 
