@@ -478,10 +478,10 @@ class myVisitor(programVisitor):
                             self.maxregnum += 1
                             self.visitres += '%g'+str(self.maxregnum)+" = getelementptr i32, i32* %g"+str(
                                 self.maxregnum-1)+', i32 '+str(linepos)+'\n'
-                            # self.maxregnum += 1
-                            # self.visitres += '%g' + \
-                            #     str(self.maxregnum)+" = load i32, i32* %g" + \
-                            #     str(self.maxregnum-1)+'\n'
+                            self.maxregnum += 1
+                            self.visitres += '%g' + \
+                                str(self.maxregnum)+" = load i32, i32* %g" + \
+                                str(self.maxregnum-1)+'\n'
                         else:
                             self.maxregnum += 1
                             self.visitres += '%g' + \
