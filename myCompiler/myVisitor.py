@@ -381,15 +381,20 @@ class myVisitor(programVisitor):
                     m = ctx.getChild(0).getChildCount()
                     if(m == 1):
                         if(self.arraydic.get(self.visitIdent(ctx.getChild(0).getChild(0))+'+'+str(self.nowscope))):
-                            self.maxregnum += 1
+                            
                             totlen = 1
                             lens = self.arraydic.get(self.visitIdent(
                                 ctx.getChild(0).getChild(0))+'+'+str(self.nowscope))
                             for i in range(len(lens)):
                                 totlen *= int(lens[i])
-                            self.visitres += '%g'+str(self.maxregnum)+' = getelementptr ['+str(totlen)+' x i32], [' +\
-                                str(totlen)+' x i32]* '+a[0].get(self.visitIdent(ctx.getChild(0).getChild(0))) +\
-                                ', i32 0,i32 0\n'
+                            if(totlen>0):
+                                self.maxregnum += 1
+                                self.visitres += '%g'+str(self.maxregnum)+' = getelementptr ['+str(totlen)+' x i32], [' +\
+                                    str(totlen)+' x i32]* '+a[0].get(self.visitIdent(ctx.getChild(0).getChild(0))) +\
+                                    ', i32 0,i32 0\n'
+                            else:
+                                return self.scopeidentdic.get(self.nowscope)[0].get(self.visitIdent(ctx.getChild(0).getChild(0)))
+                            
                         else:
                             self.maxregnum += 1
                             self.visitres += '%g'+str(self.maxregnum)+" = load i32, i32* "+a[0].get(
