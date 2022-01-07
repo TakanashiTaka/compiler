@@ -39,6 +39,7 @@ class myVisitor(programVisitor):
     def visit(self, tree):
         super().visit(tree)
         print(self.visitres)
+        # print(self.arraydic)
     # def visitChildren(self, node):
     #     retres = 0
     #     retreg = self.maxregnum
@@ -145,8 +146,10 @@ class myVisitor(programVisitor):
                     oldarray.append(spl)
                 for i in range(len(oldarray)):
                     if(oldarray[i][1] == str(oldscope)):
-                        self.arraydic[oldarray[i][0]+'+'+str(self.nowscope)] = self.arraydic.get(
-                            oldarray[i][0]+'+'+str(oldscope))
+                        if(self.arraydic.get(oldarray[i][0]+'+'+str(self.nowscope))==None):    
+                            self.arraydic[oldarray[i][0]+'+'+str(self.nowscope)] = self.arraydic.get(
+                                oldarray[i][0]+'+'+str(oldscope))
+                    
 
             elif(ctx.getChild(i).getText() == '}'):
                 self.nowscope = self.scopehisdic.get(self.nowscope)
@@ -156,9 +159,13 @@ class myVisitor(programVisitor):
         return None
 
     def visitReturnstmt(self, ctx: programParser.ReturnstmtContext):
-        res = None
-        res = self.visitExp(ctx.getChild(1))
-        self.visitres += 'ret i32 '+str(res)+'\n'
+        n=ctx.getChildCount()
+        if(n == 3):
+            res = None
+            res = self.visitExp(ctx.getChild(1))
+            self.visitres += 'ret i32 '+str(res)+'\n'
+        elif(n == 2):
+            self.visitres += 'ret\n'
 
     def visitExp(self, ctx: programParser.ExpContext):
         return self.visitAddexp(ctx.getChild(0))

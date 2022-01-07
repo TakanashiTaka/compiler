@@ -1,56 +1,46 @@
-int n;
-int swap(int array[], int i, int j) {
-    int temp;
-    temp     = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-    return 0;
+int ans[50], sum = 0, n;
+
+int row[50], line1[50], line2[100];
+
+void printans() {
+    sum   = sum + 1;
+    int i = 1;
+    while (i <= n) {
+        putint(ans[i]);
+        if (i == n) {
+            putch(10);
+            return;
+        } else
+            putch(32);
+        i = i + 1;
+    }
 }
-int heap_ajust(int arr[], int start, int end) {
-    int dad;
-    dad = start;
-    int son;
-    son = dad * 2 + 1;
-    while (son < end + 1) {  //
-        if (son < end && arr[son] < arr[son + 1])
-            son = son + 1;
-        if (arr[dad] > arr[son])
-            return 0;
-        else {
-            dad = swap(arr, dad, son);
-            dad = son;
-            son = dad * 2 + 1;
+
+void f(int step) {
+    int i = 1;
+    while (i <= n) {
+        if (row[i] != 1 && line1[step + i] == 0 && !line2[n + step - i]) {
+            ans[step] = i;
+            if (step == n)
+                printans();
+            row[i]              = 1;
+            line1[step + i]     = 1;
+            line2[n + step - i] = 1;
+            f(step + 1);
+            row[i]              = 0;
+            line1[step + i]     = 0;
+            line2[n + step - i] = 0;
         }
+        i = i + 1;
     }
-    return 0;
-}
-int heap_sort(int arr[], int len) {
-    int i;
-    int tmp;
-    i = len / 2 - 1;
-    while (i > -1) {
-        tmp = len - 1;
-        tmp = heap_ajust(arr, i, tmp);
-        i   = i - 1;
-    }
-    i = len - 1;
-    while (i > 0) {
-        int tmp0;
-        tmp0 = 0;
-        tmp  = swap(arr, tmp0, i);
-        tmp  = i - 1;
-        tmp  = heap_ajust(arr, tmp0, tmp);
-        i    = i - 1;
-    }
-    return 0;
 }
 
 int main() {
-    int a[10];
-    n = getarray(a);
-    int i;
-    i = 0;
-    i = heap_sort(a, n);
-    putarray(n, a);
+    int N = getint();
+    while (N > 0) {
+        n = getint();
+        f(1);
+        N = N - 1;
+    }
     return 0;
 }
