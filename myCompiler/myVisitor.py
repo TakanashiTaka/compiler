@@ -470,6 +470,7 @@ class myVisitor(programVisitor):
                         totlen = 1
                         for i in range(len(lens)):
                             totlen *= int(lens[i])
+                        
                         if(totlen > 0):
                             self.maxregnum += 1
                             self.visitres += '%g'+str(self.maxregnum)+' = getelementptr ['+str(totlen)+' x i32],' \
@@ -478,10 +479,11 @@ class myVisitor(programVisitor):
                             self.maxregnum += 1
                             self.visitres += '%g'+str(self.maxregnum)+" = getelementptr i32, i32* %g"+str(
                                 self.maxregnum-1)+', i32 '+str(linepos)+'\n'
-                            self.maxregnum += 1
-                            self.visitres += '%g' + \
-                                str(self.maxregnum)+" = load i32, i32* %g" + \
-                                str(self.maxregnum-1)+'\n'
+                            if(len(pos)==len(lens)):
+                                self.maxregnum += 1
+                                self.visitres += '%g' + \
+                                    str(self.maxregnum)+" = load i32, i32* %g" + \
+                                    str(self.maxregnum-1)+'\n'
                         else:
                             self.maxregnum += 1
                             self.visitres += '%g' + \
