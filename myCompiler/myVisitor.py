@@ -462,11 +462,14 @@ class myVisitor(programVisitor):
                             pos.append(self.visitExp(
                                 ctx.getChild(0).getChild(i)))
                         ###
-                        linepos = self.getpos(
-                            pos, self.arraydic.get(key+'+'+str(self.nowscope)))
-
                         lens = self.arraydic.get(key+'+'+str(self.nowscope))
-                        
+                        if(len(pos)==len(lens)):
+                            linepos = self.getpos(
+                                pos, self.arraydic.get(key+'+'+str(self.nowscope)))
+                        else:
+                            linepos = self.getpos2(
+                                pos, self.arraydic.get(key+'+'+str(self.nowscope)))
+                            
                         totlen = 1
                         for i in range(len(lens)):
                             totlen *= int(lens[i])
@@ -513,6 +516,31 @@ class myVisitor(programVisitor):
                 else:
                     print('not found sth')
                     exit(-1)
+
+    def getpos2(self, pos, lens):
+        lena = len(pos)
+        lastreg=0
+        for i in range(lena):
+                for m in range(i+1, len(lens)):
+                    self.maxregnum += 1
+                    if(m == i+1):
+                        self.visitres += '%g' + \
+                            str(self.maxregnum)+' = mul i32 ' + \
+                            str(pos[i])+' ,'+str(lens[m])+'\n'
+                    else:
+                        self.visitres += '%g' + \
+                            str(self.maxregnum)+' = mul i32 %g' + \
+                            str(self.maxregnum-1)+' ,'+str(lens[m])+'\n'
+                if(i == 0):
+                    lastreg = self.maxregnum
+                else:
+                    self.maxregnum += 1
+                    self.visitres += '%g' + \
+                        str(self.maxregnum)+'= add i32 %g' + \
+                        str(self.maxregnum-1)+', %g'+str(lastreg)+'\n'
+                    lastreg = self.maxregnum
+
+        return '%g'+str(self.maxregnum)
 
     def visitLval(self, ctx: programParser.LvalContext):
         n = ctx.getChildCount()
