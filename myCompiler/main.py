@@ -9,7 +9,7 @@ from myErrorListener import myErrorListener
  
 def main(argv):
     input_ = FileStream(argv[1])
-    
+    print(input_)
     lexer = programLexer(input_)
     stream = CommonTokenStream(lexer)
     # print('lexer ok')
