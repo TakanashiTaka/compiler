@@ -30,16 +30,15 @@ class myVisitor(programVisitor):
             'getint': ['int', []],
             'getch': ['int', []],
             'putint': ['void', ['i32']],
-            'putch':['void',['i32']],
-            'getarray':['int',['i32*']],
-            'putarray':['void',['i32','i32*']]
+            'putch': ['void', ['i32']],
+            'getarray': ['int', ['i32*']],
+            'putarray': ['void', ['i32', 'i32*']]
         }
         self.nowfuncparams = {}
 
     def visit(self, tree):
         super().visit(tree)
         print(self.visitres)
-        print(self.myfuncdic)
     # def visitChildren(self, node):
     #     retres = 0
     #     retreg = self.maxregnum
@@ -304,46 +303,45 @@ class myVisitor(programVisitor):
                             str(self.maxregnum-1)+' to i32\n'
                         return '%g'+str(self.maxregnum)
                 else:
-                        identstr = self.visitIdent(ctx.getChild(0))
-                        func = self.myfuncdic.get(identstr)
-                        if(func):
-                            if(func[0] == 'int'):
-                                if(n == 3):
-                                    self.maxregnum += 1
-                                    self.visitres += '%g' + \
-                                        str(self.maxregnum) + \
-                                        '= call i32 @'+identstr+'()\n'
-                                elif(n == 4):
-                                    res = self.visitFuncrparams(
-                                        ctx.getChild(2))
-                                    self.maxregnum += 1
-                                    parastr = ''
-                                    for i in range(len(res)):
-                                        parastr += self.myfuncdic.get(
-                                            identstr)[1][i]+' '+str(res[i])
-                                        if(i < len(res)-1):
-                                            parastr += ', '
-                                    self.visitres += '%g' + \
-                                        str(self.maxregnum)+'= call i32 @' + \
-                                        identstr+'('+parastr+')\n'
-                            elif(func[0] == 'void'):
-                                if(n == 3):
-                                    self.visitres += 'call void @'+identstr+'()\n'
-                                elif(n == 4):
-                                    res = self.visitFuncrparams(
-                                        ctx.getChild(2))
-                                    parastr = ''
-                                    for i in range(len(res)):
-                                        parastr += self.myfuncdic.get(
-                                            identstr)[1][i]+' '+str(res[i])
-                                        if(i < len(res)-1):
-                                            parastr += ', '
-                                    self.visitres += 'call void @' + \
-                                        identstr+'('+parastr+')\n'
-                        else:
-                            exit(-1)
-
-                        return '%g'+str(self.maxregnum)
+                    identstr = self.visitIdent(ctx.getChild(0))
+                    func = self.myfuncdic.get(identstr)
+                    if(func):
+                        if(func[0] == 'int'):
+                            if(n == 3):
+                                self.maxregnum += 1
+                                self.visitres += '%g' + \
+                                    str(self.maxregnum) + \
+                                    '= call i32 @'+identstr+'()\n'
+                            elif(n == 4):
+                                res = self.visitFuncrparams(
+                                    ctx.getChild(2))
+                                self.maxregnum += 1
+                                parastr = ''
+                                for i in range(len(res)):
+                                    parastr += self.myfuncdic.get(
+                                        identstr)[1][i]+' '+str(res[i])
+                                    if(i < len(res)-1):
+                                        parastr += ', '
+                                self.visitres += '%g' + \
+                                    str(self.maxregnum)+'= call i32 @' + \
+                                    identstr+'('+parastr+')\n'
+                        elif(func[0] == 'void'):
+                            if(n == 3):
+                                self.visitres += 'call void @'+identstr+'()\n'
+                            elif(n == 4):
+                                res = self.visitFuncrparams(
+                                    ctx.getChild(2))
+                                parastr = ''
+                                for i in range(len(res)):
+                                    parastr += self.myfuncdic.get(
+                                        identstr)[1][i]+' '+str(res[i])
+                                    if(i < len(res)-1):
+                                        parastr += ', '
+                                self.visitres += 'call void @' + \
+                                    identstr+'('+parastr+')\n'
+                    else:
+                        exit(-1)
+                    return '%g'+str(self.maxregnum)
 
     def visitFuncrparams(self, ctx: programParser.FuncrparamsContext):
         n = ctx.getChildCount()
