@@ -393,6 +393,7 @@ class myVisitor(programVisitor):
                                 self.visitres += 'call void @' + \
                                     identstr+'('+parastr+')\n'
                     else:
+                        print('wtf')
                         exit(-1)
                     return '%g'+str(self.maxregnum)
 
@@ -415,6 +416,7 @@ class myVisitor(programVisitor):
 
                 return res
             else:
+                print('not in a[1]  1')
                 exit(-1)
 
         else:
@@ -427,6 +429,7 @@ class myVisitor(programVisitor):
 
                     return res
                 else:
+                    print('not in a[1]  2')
                     exit(-1)
             else:
                 if(a[0].get(self.visitIdent(ctx.getChild(0).getChild(0)))):
@@ -475,10 +478,10 @@ class myVisitor(programVisitor):
                             self.maxregnum += 1
                             self.visitres += '%g'+str(self.maxregnum)+" = getelementptr i32, i32* %g"+str(
                                 self.maxregnum-1)+', i32 '+str(linepos)+'\n'
-                            self.maxregnum += 1
-                            self.visitres += '%g' + \
-                                str(self.maxregnum)+" = load i32, i32* %g" + \
-                                str(self.maxregnum-1)+'\n'
+                            # self.maxregnum += 1
+                            # self.visitres += '%g' + \
+                            #     str(self.maxregnum)+" = load i32, i32* %g" + \
+                            #     str(self.maxregnum-1)+'\n'
                         else:
                             self.maxregnum += 1
                             self.visitres += '%g' + \
@@ -506,6 +509,7 @@ class myVisitor(programVisitor):
                         return res
 
                 else:
+                    print('not found sth')
                     exit(-1)
 
     def visitLval(self, ctx: programParser.LvalContext):
@@ -517,6 +521,7 @@ class myVisitor(programVisitor):
             elif(a[1].get(self.visitIdent(ctx.getChild(0)))):
                 return a[1].get(self.visitIdent(ctx.getChild(0)))
             else:
+                print('not found lval')
                 exit(-1)
         else:
             res = []
@@ -596,6 +601,7 @@ class myVisitor(programVisitor):
                     todelidentdic.pop(key)
                     nowscopedecl[0] = todelidentdic
                 else:
+                    print('regin != regout  1')
                     exit(-1)
         else:
             key = self.visitIdent(ctx.getChild(0))
@@ -637,6 +643,7 @@ class myVisitor(programVisitor):
                     nowscopedecl[0] = todelidentdic
                     self.scopeidentdic[self.nowscope] = nowscopedecl
                 else:
+                    print('regin != regout  2')
                     exit(-1)
 
     def visitConstinitval(self, ctx: programParser.ConstinitvalContext):
@@ -767,7 +774,6 @@ class myVisitor(programVisitor):
 
     def visitAssigndef(self, ctx: programParser.AssigndefContext):
         if(self.nowscope == 0):
-
             n = ctx.getChildCount()
             if(n == 3):
                 key = self.visitIdent(ctx.getChild(0))
@@ -781,6 +787,7 @@ class myVisitor(programVisitor):
                     self.visitres += '@'+key + \
                         '= dso_local global i32 '+str(res)+'\n'
                 else:
+                    print('has defined global')
                     exit(-1)
             else:
                 key = self.visitIdent(ctx.getChild(0))
@@ -805,6 +812,7 @@ class myVisitor(programVisitor):
                         '= dso_local global [' + \
                         str(totlen)+' x i32] '+initstr+'\n'
                 else:
+                    print('defined in global')
                     exit(-1)
 
         else:
@@ -853,21 +861,21 @@ class myVisitor(programVisitor):
                             ', i32* '+nowscopedecl[0].get(key)+'\n'
 
                     else:
-
+                        print('same in scope')
                         exit(-1)
             else:
                 self.maxregnum += 1
                 key = self.visitIdent(ctx.getChild(0))
                 lens = []
                 oldscope = self.nowscope
-                self.nowscope = 0
+                self.nowconst=True
                 for i in range(2, n-1, 3):
                     dim = self.visitConstexp(ctx.getChild(i))
                     if(int(dim) < 0):
                         print('minus define')
                         exit(-1)
                     lens.append(dim)
-                self.nowscope = oldscope
+                self.nowconst=False
                 self.arraydic[key+'+'+str(self.nowscope)] = lens
                 nowscopedecl = self.scopeidentdic.get(self.nowscope)
                 totlen = 1
@@ -924,6 +932,7 @@ class myVisitor(programVisitor):
                         todelidentdic = nowscopedecl[1]
                         todelidentdic.pop(key)
                         nowscopedecl[1] = todelidentdic
+                        
                         self.scopeidentdic[self.nowscope] = nowscopedecl
                         self.maxregnum += 1
                         self.visitres += '%g'+str(self.maxregnum)+'= getelementptr ['+str(
@@ -934,6 +943,7 @@ class myVisitor(programVisitor):
                         res = self.visitInitval(ctx.getChild(n-1))
                         self.compileArray(res, [], key, 0)
                     else:
+                        print('regin != regout   3')
                         exit(-1)
 
     def visitNoassigndef(self, ctx: programParser.NoassigndefContext):
@@ -949,6 +959,7 @@ class myVisitor(programVisitor):
                     self.scopeidentdic[self.nowscope] = nowscopedecl
                     self.visitres += '@'+key+'= dso_local global i32 0\n'
                 else:
+                    print('has defined in global  2')
                     exit(-1)
             else:
                 key = self.visitIdent(ctx.getChild(0))
@@ -970,6 +981,7 @@ class myVisitor(programVisitor):
                         str(totlen)+' x i32] zeroinitializer\n'
 
                 else:
+                    print('has defined in scope')
                     exit(-1)
         else:  # 非全局
             n = ctx.getChildCount()
@@ -1008,6 +1020,7 @@ class myVisitor(programVisitor):
                         self.visitres += '%g' + \
                             str(self.maxregnum)+'= alloca i32\n'
                     else:
+                        print('regin != regout  4')
                         exit(-1)
             else:  # array
                 self.maxregnum += 1
@@ -1080,6 +1093,7 @@ class myVisitor(programVisitor):
                         self.visitres += 'call void @memset(i32* %g'+str(
                             self.maxregnum)+', i32 0, i32 '+str(totlen*4)+')\n'
                     else:
+                        print('regin != regout   5')
                         exit(-1)
 
     def visitInitval(self, ctx: programParser.InitvalContext):
