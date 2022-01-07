@@ -670,7 +670,7 @@ class myVisitor(programVisitor):
                     ',i32* %g'+str(self.maxregnum)+'\n'
             else:
                 self.maxregnum += 1
-                self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32, i32* %g' +\
+                self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32, i32* ' +\
                     self.scopeidentdic.get(self.nowscope)[0].get(
                         key)+', i32 '+str(respos)+'\n'
                 self.visitres += 'store i32 '+nums + \
