@@ -6,7 +6,8 @@ int set(int a[]){
 int main(){
     int c;
     int p[4][2]={1,2,3};
-
+    putint(p[0]);
+    
     c=set(p);
     return c;
 }
