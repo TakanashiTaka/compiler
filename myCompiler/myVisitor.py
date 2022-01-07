@@ -108,7 +108,7 @@ class myVisitor(programVisitor):
                     totlen *= int(res)
                     lens.append(int(res))
             self.nowfuncparams[ident] = ['%g'+str(self.maxregnum), 'i32*']
-            self.arraydic[ident+'+'+str(self.nowscope+1)] = lens
+            self.arraydic[ident+'+'+str(self.maxscope+1)] = lens
             return 'i32*'
 
     def visitIdent(self, ctx: programParser.IdentContext):
@@ -406,6 +406,7 @@ class myVisitor(programVisitor):
                             pos, self.arraydic.get(key+'+'+str(self.nowscope)))
 
                         lens = self.arraydic.get(key+'+'+str(self.nowscope))
+                        
                         totlen = 1
                         for i in range(len(lens)):
                             totlen *= int(lens[i])
@@ -482,7 +483,7 @@ class myVisitor(programVisitor):
                     str(self.maxregnum-1)+', i32 '+str(pos)+'\n'
             else:
                 self.maxregnum += 1
-                self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* %g' + \
+                self.visitres += '%g'+str(self.maxregnum)+' = getelementptr i32 ,i32* ' + \
                     self.scopeidentdic.get(self.nowscope)[0].get(
                         key)+', i32 '+str(pos)+'\n'
             return '%g'+str(self.maxregnum)
