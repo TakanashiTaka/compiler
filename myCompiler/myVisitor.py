@@ -124,18 +124,19 @@ class myVisitor(programVisitor):
                 self.nowscope = self.maxscope
                 copyold = copy.deepcopy(self.scopeidentdic.get(
                     self.scopehisdic.get(self.nowscope)))
-                for i in self.nowfuncparams.keys():
-                    value = self.nowfuncparams.get(i)
-                    if(value[1] == 'i32'):
+                if(oldscope==0):
+                    for i in self.nowfuncparams.keys():
+                        value = self.nowfuncparams.get(i)
+                        if(value[1] == 'i32'):
 
-                        self.maxregnum += 1
-                        self.visitres += '%g' + \
-                            str(self.maxregnum)+'= alloca i32\n'
-                        self.visitres += 'store i32 ' + \
-                            str(value[0])+', i32* %g'+str(self.maxregnum)+'\n'
-                        copyold[0][i] = '%g'+str(self.maxregnum)
-                    elif(value[1] == 'i32*'):
-                        copyold[0][i] = value[0]
+                            self.maxregnum += 1
+                            self.visitres += '%g' + \
+                                str(self.maxregnum)+'= alloca i32\n'
+                            self.visitres += 'store i32 ' + \
+                                str(value[0])+', i32* %g'+str(self.maxregnum)+'\n'
+                            copyold[0][i] = '%g'+str(self.maxregnum)
+                        elif(value[1] == 'i32*'):
+                            copyold[0][i] = value[0]
 
                 self.scopeidentdic[self.nowscope] = copyold
                 oldarray = []

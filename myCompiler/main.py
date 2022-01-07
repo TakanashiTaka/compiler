@@ -23,7 +23,7 @@ def main(argv):
     v= myVisitor()
     v.visit(tree)
     # print(v.visitres)
-    print(input_)
+    # print(input_)
     # print('visit finish')
     # print(tree.toStringTree(programParser.ruleNames))
 

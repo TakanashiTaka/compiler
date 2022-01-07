@@ -1,13 +1,23 @@
-
-int set(int a[]){
-    int c=a[1];
-    return c;
+int _getMaxOfAll(int result[], int size) {
+    int maxNum;
+    maxNum = -999999;
+    size = size - 1;
+    while(size > -1) {
+        if (result[size] > maxNum) {
+            maxNum = result[size];
+        }
+        size = size - 1;
+    }
+    return maxNum;
 }
-int main(){
-    int c;
-    int p[4][2]={1,2,3};
-    putint(p[0]);
-    
-    c=set(p);
-    return c;
+
+int main() {
+    int result[3];
+    result[0] = -2;
+    result[1] = 2;
+    result[2] = -7;
+    int x;
+    x = result[_getMaxOfAll(result, 3)];
+    putint(x);
+    return 0;
 }
